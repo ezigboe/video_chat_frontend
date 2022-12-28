@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_chat/auth.dart';
 import 'package:video_chat/cubits/auth_cubit/auth_cubit.dart';
+import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
 import 'package:video_chat/repositories/auth_repository.dart';
+import 'package:video_chat/repositories/stream_repository.dart';
 import 'package:video_chat/screens/auth_screens/auth_screens.dart';
 import 'package:video_chat/screens/auth_screens/sign_in_screen.dart';
 import 'package:video_chat/screens/home_screen.dart';
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (context) => AuthRepository()),
+        RepositoryProvider(create: (context) => StreamRepository())
       ],
       child: MultiBlocProvider(
         providers: [
@@ -34,6 +37,9 @@ class MyApp extends StatelessWidget {
             create: (context) =>
                 AuthCubit(context.read<AuthRepository>())..initAuth(),
           ),
+          BlocProvider(
+              create: (context) =>
+                  StreamListCubit(context.read<StreamRepository>()))
         ],
         child: MaterialApp(
           title: 'Flutter Demo',
@@ -45,10 +51,12 @@ class MyApp extends StatelessWidget {
 
             textTheme: const TextTheme(),
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              selectedLabelStyle: TextStyle(fontSize: 10,fontWeight: FontWeight.w600),
-              unselectedLabelStyle: TextStyle(fontSize: 10),
-              backgroundColor: MetaColors.primaryColor,
-                selectedItemColor: Colors.white,elevation: 0,
+                selectedLabelStyle:
+                    TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+                unselectedLabelStyle: TextStyle(fontSize: 10),
+                backgroundColor: MetaColors.primaryColor,
+                selectedItemColor: Colors.white,
+                elevation: 0,
                 unselectedItemColor: Colors.white30),
             appBarTheme: const AppBarTheme(
                 backgroundColor: Colors.white,

@@ -4,7 +4,10 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:video_chat/models/user_model/user_model.dart';
 import 'package:video_chat/repositories/auth_repository.dart';
+import 'package:video_chat/repositories/user_repository.dart';
 
 part 'auth_state.dart';
 
@@ -12,6 +15,9 @@ class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
   AuthCubit(this._authRepository) : super(AuthLoading());
   StreamSubscription? _authSubscription;
+  late String authToken;
+  FlutterSecureStorage storage = new FlutterSecureStorage();
+  late UserRepository _userRepository;
   initAuth() async {
     emit(AuthLoading());
     _authSubscription?.cancel();
@@ -19,11 +25,10 @@ class AuthCubit extends Cubit<AuthState> {
     _authSubscription =
         FirebaseAuth.instance.authStateChanges().listen((userData) async {
       if (userData != null) {
+        log("User Exists");
         //TODO:get UserData From server;
-        String token = await userData.getIdToken();
-        log(token);
-        await _authRepository.updateToken(token,{});
-        emit(AuthLoggedIn(userData));
+
+        await getUserDetails(userData);
       } else {
         log("Logged Out");
         emit(AuthLoggedOut());
@@ -35,6 +40,7 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       emit(AuthTempLoader());
       User? user = await _authRepository.signIn(email, password);
+      log("here");
     } catch (e) {
       emit(AuthFlowError(formatMessage(e)));
     }
@@ -89,6 +95,47 @@ class AuthCubit extends Cubit<AuthState> {
       await _authRepository.logout();
     } catch (e) {
       emit(AuthError(formatMessage(e)));
+    }
+  }
+
+  getUserDetails(User userData) async {
+    String token = await FirebaseAuth.instance.currentUser!.getIdToken();
+    authToken = token;
+    await storage.write(key: "token", value: token);
+    log(token);
+    _userRepository = UserRepository(authToken);
+    try {
+      UserModel userModel = await _userRepository.getUserDetails();
+      log("Here");
+      emit(AuthLoggedIn(userData, userModel));
+    } catch (e) {
+      if (e.toString().contains("404"))
+        emit(AuthUserDetailsPending());
+      else {
+        log(e.toString());
+        signOut();
+        emit(AuthError("$e"));
+      }
+    }
+  }
+
+  updateUserDetails(var params) async {
+    try {
+      emit(AuthLoading());
+      User user = FirebaseAuth.instance.currentUser!;
+      params["email"] = user.email;
+      UserModel userModel = await _userRepository.updateUserDetails(params);
+      log("Here");
+      emit(AuthLoggedIn(user, userModel));
+    } catch (e) {
+      if (e.toString().contains("404"))
+        emit(AuthUserDetailsPending());
+      else {
+        log(e.toString());
+        // signOut();
+        emit(AuthError("$e"));
+        emit(AuthUserDetailsPending());
+      }
     }
   }
 }

@@ -1,7 +1,12 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:video_chat/auth.dart';
+import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
+import 'package:video_chat/models/stream_model/stream_model.dart';
 import 'package:video_chat/screens/live_stream_screen.dart';
+import 'package:video_chat/utils/helper_widgets.dart';
 import 'package:video_chat/utils/meta_assets.dart';
 import 'package:video_chat/utils/meta_colors.dart';
 
@@ -12,20 +17,42 @@ class StreamGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverGrid(
-        delegate: SliverChildBuilderDelegate(((context, index) {
-          return StreamTileWidget();
-        }), childCount: 3),
-        gridDelegate:
-            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2));
+    return BlocConsumer<StreamListCubit, StreamListState>(
+      listener: (context, state) {
+        // TODO: implement listener
+        if (state is StreamListError) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
+              behavior: SnackBarBehavior.fixed,
+              dismissDirection: DismissDirection.horizontal,
+              content: MessageWidget(
+                message: state.error,
+                isError: true,
+              )));
+        }
+      },
+      builder: (context, state) {
+        if (state is StreamListLoaded) {
+          return SliverGrid(
+              delegate: SliverChildBuilderDelegate(((context, index) {
+                return StreamTileWidget(data: state.data[index]);
+              }), childCount: state.data.length),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2));
+        }
+        return Loader();
+      },
+    );
   }
 }
 
-class StreamTileWidget extends StatelessWidget {``
+class StreamTileWidget extends StatelessWidget {
   const StreamTileWidget({
     Key? key,
+    required this.data,
   }) : super(key: key);
-
+  final StreamModel data;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -184,30 +211,31 @@ class _TVIconWidgetState extends State<TVIconWidget>
     controller = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 900),
-    )..forward()..repeat();
+    )
+      ..forward()
+      ..repeat();
   }
 
-@override
-void dispose(){
-  controller.dispose();
-  super.dispose();
-}
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0).copyWith(bottom: 0),
       child: AnimatedBuilder(
-          animation: CurvedAnimation(
-              parent: controller,
-              curve: Curves.easeIn)..drive(Tween<double>(begin: 0, end: 1)),
+          animation: CurvedAnimation(parent: controller, curve: Curves.easeIn)
+            ..drive(Tween<double>(begin: 0, end: 1)),
           builder: (context, child) {
-           
             return ShaderMask(
               shaderCallback: ((bounds) {
                 return LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomCenter,
-                        stops: [controller.value, 0.9, 1-controller.value],
+                        stops: [controller.value, 0.9, 1 - controller.value],
                         colors: [Colors.red, Colors.grey.shade100, Colors.red])
                     .createShader(bounds);
               }),

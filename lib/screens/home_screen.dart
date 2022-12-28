@@ -2,7 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
+import 'package:video_chat/screens/auth_screens/user_details_update.dart';
 import 'package:video_chat/screens/chat_screen.dart';
 import 'package:video_chat/screens/live_stream_screen.dart';
 import 'package:video_chat/screens/live_stream_widget.dart';
@@ -44,52 +47,53 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentIndex = pageController.page!.toInt();
         });
     });
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<StreamListCubit>().getData();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-        drawer: Drawer(
-          child: Container(
-              child: Column(
-            children: [Text("Hey")],
-          )),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: ((value) {
-              setState(() {
-                _currentIndex = value;
-              });
-              pageController.jumpToPage(value);
-            }),
-            items: [
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.home), label: "Home"),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.video_camera_solid),
-                  label: "Random"),
-              BottomNavigationBarItem(
-                  icon: Icon(CupertinoIcons.chat_bubble_text), label: "Chats")
-            ]),
-        body: PageView(
-          controller: pageController,
-          children: [
-            Home(
-              pageController: pageController,
-            ),
-            VideoCallScreen(),
-            ChatScreen()
-          ],
-        )
-        // This trailing comma makes auto-formatting nicer for build methods.
-        );
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        // TODO: implement listener
+      },
+      builder: (context, state) {
+        if (state is AuthUserDetailsPending) return UserDetailsUpdate();
+
+        return Scaffold(
+            bottomNavigationBar: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                onTap: ((value) {
+                  setState(() {
+                    _currentIndex = value;
+                  });
+                  pageController.jumpToPage(value);
+                }),
+                items: [
+                  BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.home), label: "Home"),
+                  BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.video_camera_solid),
+                      label: "Random"),
+                  BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.chat_bubble_text),
+                      label: "Chats")
+                ]),
+            body: PageView(
+              controller: pageController,
+              children: [
+                Home(
+                  pageController: pageController,
+                ),
+                VideoCallScreen(),
+                ChatScreen()
+              ],
+            )
+            // This trailing comma makes auto-formatting nicer for build methods.
+            );
+      },
+    );
   }
 }
 
@@ -132,12 +136,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   var initialStyle = TextStyle(
       fontFamily: "Poppins",
       fontSize: 18,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.w600,
       color: Colors.white);
   var finalStyle = TextStyle(
       fontFamily: "Poppins",
       fontSize: 18,
-      fontWeight: FontWeight.w400,
+      fontWeight: FontWeight.w600,
       color: Colors.black);
   @override
   Widget build(BuildContext context) {
@@ -178,7 +182,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             builder: (context, state) {
                               return DefaultTextStyleTransition(
                                   child: Text(
-                                      "Hi, ${state is AuthLoggedIn ? state.userData.email?.split("@").first ?? "User" : "User"}"),
+                                      "Hi, ${state is AuthLoggedIn ? state.userData.fullName ?? "User" : "User"}"),
                                   style: CurvedAnimation(
                                           parent: controller,
                                           curve: Curves.elasticOut)
@@ -380,7 +384,7 @@ class AppBarWidget extends StatelessWidget {
             child: BlocBuilder<AuthCubit, AuthState>(
               builder: (context, state) {
                 return Text(
-                  "Hi, ${state is AuthLoggedIn ? state.userData.email?.split("@").first ?? "User" : "User"}",
+                  "Hi, ${state is AuthLoggedIn ? state.userData.fullName ?? "User" : "User"}",
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

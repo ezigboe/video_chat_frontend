@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:video_chat/utils/meta_colors.dart';
 import 'package:video_chat/utils/meta_styles.dart';
 import 'package:video_chat/utils/validators.dart';
@@ -81,6 +82,13 @@ class CustomButton extends StatelessWidget {
       child: Container(
         width: double.maxFinite,
         decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                  color: MetaColors.primaryColor.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 15,
+                  offset: Offset(0, 8))
+            ],
             borderRadius: BorderRadius.circular(12),
             gradient: LinearGradient(
                 begin: Alignment.bottomCenter,
@@ -116,12 +124,15 @@ class CustomButton extends StatelessWidget {
 }
 
 class FormFieldWidget extends StatelessWidget {
-  const FormFieldWidget(
+  FormFieldWidget(
       {Key? key,
       required this.textController,
       this.enabled = true,
+      this.readOnly = false,
+      this.isPhone = false,
       required this.label,
       this.obscureText = false,
+      this.onTap,
       required this.validator})
       : super(key: key);
   final String label;
@@ -129,13 +140,19 @@ class FormFieldWidget extends StatelessWidget {
   final bool? obscureText;
   final String? Function(String?) validator;
   final bool? enabled;
+  final bool? readOnly;
+  final bool? isPhone;
+  VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
+        readOnly: readOnly!,
+        onTap: onTap,
         enabled: enabled,
+        inputFormatters: [if (isPhone!) FilteringTextInputFormatter.digitsOnly,if(isPhone!)LengthLimitingTextInputFormatter(10)],
         validator: validator,
         controller: textController,
         style: MetaStyles.labelStyle,

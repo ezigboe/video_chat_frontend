@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
+import 'package:video_chat/models/user_model/user_model.dart';
 import 'package:video_chat/utils/meta_strings.dart';
 
 class AuthRepository {
@@ -64,26 +65,5 @@ class AuthRepository {
     await instance.signOut();
   }
 
-  updateToken(String token,var params) async {
-    try {
-      var headers = {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json"
-      };
-      var params = {
-        "first_name": "Vaibhav",
-        "last_name": "Anchan",
-        "password": "abchsj@A1s",
-        "email": "vaibhavanchan359@gmail.com",
-        "phone": "7204073116"
-      };
-      http.Response response = await http.post(
-          Uri.parse(MetaStrings.userUpdateUrl),
-          headers: headers,
-          body: jsonEncode(params));
-      log(response.body.toString());
-    } catch (e) {
-      log(e.toString());
-    }
-  }
+ 
 }

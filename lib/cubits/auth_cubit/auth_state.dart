@@ -10,10 +10,11 @@ abstract class AuthState extends Equatable {
 class AuthLoading extends AuthState {}
 
 class AuthLoggedIn extends AuthState {
-  User userData;
-  AuthLoggedIn(this.userData);
+  User userAuthData;
+  UserModel userData;
+  AuthLoggedIn(this.userAuthData,this.userData);
    @override
-  List<Object> get props=>[userData];
+  List<Object> get props=>[userAuthData,userData];
 }
 
 class AuthLoggedOut extends AuthState {}
@@ -25,7 +26,7 @@ class AuthPasswordResetEmailSent extends AuthState {
 
 class AuthPasswordResetComplete extends AuthState {}
 class AuthTempLoader extends AuthState{}
-
+class AuthUserDetailsPending extends AuthState{}
 class AuthFlowError extends AuthState{
   String error;
   AuthFlowError(this.error);

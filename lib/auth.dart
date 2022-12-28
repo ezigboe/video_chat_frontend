@@ -65,7 +65,8 @@ class _AuthState extends State<Auth> {
         },
         builder: (context, state) {
           if (state is AuthLoading) return Loader();
-          if (state is AuthLoggedIn) return HomeScreen(title: "Home");
+          if (state is AuthLoggedIn || state is AuthUserDetailsPending)
+            return HomeScreen(title: "Home");
           return AuthScreens();
         },
       ),
