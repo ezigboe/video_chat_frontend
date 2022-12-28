@@ -10,6 +10,8 @@ import 'package:video_chat/utils/helper_widgets.dart';
 import 'package:video_chat/utils/meta_assets.dart';
 import 'package:video_chat/utils/meta_colors.dart';
 
+import 'live_stream_detail_screen.dart';
+
 class StreamGridWidget extends StatelessWidget {
   const StreamGridWidget({
     Key? key,
@@ -57,8 +59,12 @@ class StreamTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => LiveStreamScreen()));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LiveStreamDetailsScreen(
+                      data: data,
+                    )));
       },
       child: Center(
         child: Padding(
