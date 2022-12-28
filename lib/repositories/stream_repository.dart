@@ -28,9 +28,9 @@ class StreamRepository {
       log(response.body);
       if (response.statusCode == 200) {
         return jsonDecode(response.body)["streams"]
-            .map<StreamModel>((e) => StreamModel.fromJson(e));
+            .map<StreamModel>((e) => StreamModel.fromJson(e)).toList();
       } else {
-        throw Exception(jsonDecode(response.body)["error"]["message"] +
+        throw Exception(jsonDecode(response.body)["errors"][0]["message"] +
             response.statusCode);
       }
     } catch (e) {

@@ -27,6 +27,8 @@ mixin _$UserModel {
   int get diamondBalance => throw _privateConstructorUsedError;
   String get phone => throw _privateConstructorUsedError;
   String get gender => throw _privateConstructorUsedError;
+  String get referralCode => throw _privateConstructorUsedError;
+  String get profileImage => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -46,7 +48,9 @@ abstract class $UserModelCopyWith<$Res> {
       int goldBalance,
       int diamondBalance,
       String phone,
-      String gender});
+      String gender,
+      String referralCode,
+      String profileImage});
 }
 
 /// @nodoc
@@ -69,6 +73,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? diamondBalance = null,
     Object? phone = null,
     Object? gender = null,
+    Object? referralCode = null,
+    Object? profileImage = null,
   }) {
     return _then(_value.copyWith(
       fullName: null == fullName
@@ -99,6 +105,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String,
+      referralCode: null == referralCode
+          ? _value.referralCode
+          : referralCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      profileImage: null == profileImage
+          ? _value.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -117,7 +131,9 @@ abstract class _$$_UserModelCopyWith<$Res> implements $UserModelCopyWith<$Res> {
       int goldBalance,
       int diamondBalance,
       String phone,
-      String gender});
+      String gender,
+      String referralCode,
+      String profileImage});
 }
 
 /// @nodoc
@@ -138,6 +154,8 @@ class __$$_UserModelCopyWithImpl<$Res>
     Object? diamondBalance = null,
     Object? phone = null,
     Object? gender = null,
+    Object? referralCode = null,
+    Object? profileImage = null,
   }) {
     return _then(_$_UserModel(
       fullName: null == fullName
@@ -168,6 +186,14 @@ class __$$_UserModelCopyWithImpl<$Res>
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String,
+      referralCode: null == referralCode
+          ? _value.referralCode
+          : referralCode // ignore: cast_nullable_to_non_nullable
+              as String,
+      profileImage: null == profileImage
+          ? _value.profileImage
+          : profileImage // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -182,7 +208,9 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
       required this.goldBalance,
       required this.diamondBalance,
       required this.phone,
-      required this.gender});
+      required this.gender,
+      required this.referralCode,
+      required this.profileImage});
 
   factory _$_UserModel.fromJson(Map<String, dynamic> json) =>
       _$$_UserModelFromJson(json);
@@ -201,10 +229,14 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
   final String phone;
   @override
   final String gender;
+  @override
+  final String referralCode;
+  @override
+  final String profileImage;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'UserModel(fullName: $fullName, email: $email, dob: $dob, goldBalance: $goldBalance, diamondBalance: $diamondBalance, phone: $phone, gender: $gender)';
+    return 'UserModel(fullName: $fullName, email: $email, dob: $dob, goldBalance: $goldBalance, diamondBalance: $diamondBalance, phone: $phone, gender: $gender, referralCode: $referralCode, profileImage: $profileImage)';
   }
 
   @override
@@ -218,7 +250,9 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
       ..add(DiagnosticsProperty('goldBalance', goldBalance))
       ..add(DiagnosticsProperty('diamondBalance', diamondBalance))
       ..add(DiagnosticsProperty('phone', phone))
-      ..add(DiagnosticsProperty('gender', gender));
+      ..add(DiagnosticsProperty('gender', gender))
+      ..add(DiagnosticsProperty('referralCode', referralCode))
+      ..add(DiagnosticsProperty('profileImage', profileImage));
   }
 
   @override
@@ -235,13 +269,17 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
             (identical(other.diamondBalance, diamondBalance) ||
                 other.diamondBalance == diamondBalance) &&
             (identical(other.phone, phone) || other.phone == phone) &&
-            (identical(other.gender, gender) || other.gender == gender));
+            (identical(other.gender, gender) || other.gender == gender) &&
+            (identical(other.referralCode, referralCode) ||
+                other.referralCode == referralCode) &&
+            (identical(other.profileImage, profileImage) ||
+                other.profileImage == profileImage));
   }
 
   @JsonKey(ignore: true)
   @override
   int get hashCode => Object.hash(runtimeType, fullName, email, dob,
-      goldBalance, diamondBalance, phone, gender);
+      goldBalance, diamondBalance, phone, gender, referralCode, profileImage);
 
   @JsonKey(ignore: true)
   @override
@@ -265,7 +303,9 @@ abstract class _UserModel implements UserModel {
       required final int goldBalance,
       required final int diamondBalance,
       required final String phone,
-      required final String gender}) = _$_UserModel;
+      required final String gender,
+      required final String referralCode,
+      required final String profileImage}) = _$_UserModel;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$_UserModel.fromJson;
@@ -284,6 +324,10 @@ abstract class _UserModel implements UserModel {
   String get phone;
   @override
   String get gender;
+  @override
+  String get referralCode;
+  @override
+  String get profileImage;
   @override
   @JsonKey(ignore: true)
   _$$_UserModelCopyWith<_$_UserModel> get copyWith =>

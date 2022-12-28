@@ -4,10 +4,12 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:video_chat/models/user_model/user_model.dart';
 import 'package:video_chat/repositories/auth_repository.dart';
 import 'package:video_chat/repositories/user_repository.dart';
+import 'package:video_chat/utils/upload_media.dart';
 
 part 'auth_state.dart';
 
@@ -119,23 +121,45 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  updateUserDetails(var params) async {
+  updateUserDetails(
+      String phone, String fullName, DateTime dob, String gender,SelectedMedia media) async {
     try {
       emit(AuthLoading());
-      User user = FirebaseAuth.instance.currentUser!;
-      params["email"] = user.email;
-      UserModel userModel = await _userRepository.updateUserDetails(params);
-      log("Here");
-      emit(AuthLoggedIn(user, userModel));
+
+      Stream<TaskSnapshot> result = uploadData(media.storagePath, media.bytes);
+
+      result.listen((data) async {
+        try {
+          log((data.bytesTransferred / data.totalBytes).toString());
+          if (data.state == TaskState.running) {
+          } else if (data.state == TaskState.success) {
+            String url = await data.ref.getDownloadURL();
+            if (url.isNotEmpty) {
+              User user = FirebaseAuth.instance.currentUser!;
+
+              UserModel userModel = await _userRepository.updateUserDetails(
+                fullName,
+                user.email!,
+                phone,
+                url,
+                gender,
+                dob,
+              );
+              log("Here");
+              emit(AuthLoggedIn(user, userModel));
+            } else {
+              emit(AuthUserDetailsPending(
+                  error: "Image Upload failed please try again"));
+            }
+          }
+        } catch (e) {
+          log("errroor-1111------------------------------------------------$e");
+          emit(AuthUserDetailsPending(error: e.toString()));
+        }
+      });
     } catch (e) {
-      if (e.toString().contains("404"))
-        emit(AuthUserDetailsPending());
-      else {
-        log(e.toString());
-        // signOut();
-        emit(AuthError("$e"));
-        emit(AuthUserDetailsPending());
-      }
+      log("errroor-------------------------------------------------$e");
+      emit(AuthUserDetailsPending(error: e.toString()));
     }
   }
 }

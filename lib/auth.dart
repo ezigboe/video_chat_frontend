@@ -81,9 +81,13 @@ class Loader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CupertinoActivityIndicator(),
+    return SizedBox(
+      height: 100,
+      width: 100,
+      child: Scaffold(
+        body: Center(
+          child: CupertinoActivityIndicator(),
+        ),
       ),
     );
   }

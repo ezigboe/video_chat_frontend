@@ -4,7 +4,7 @@ abstract class AuthState extends Equatable {
   const AuthState();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class AuthLoading extends AuthState {}
@@ -12,9 +12,9 @@ class AuthLoading extends AuthState {}
 class AuthLoggedIn extends AuthState {
   User userAuthData;
   UserModel userData;
-  AuthLoggedIn(this.userAuthData,this.userData);
-   @override
-  List<Object> get props=>[userAuthData,userData];
+  AuthLoggedIn(this.userAuthData, this.userData);
+  @override
+  List<Object> get props => [userAuthData, userData];
 }
 
 class AuthLoggedOut extends AuthState {}
@@ -25,18 +25,26 @@ class AuthPasswordResetEmailSent extends AuthState {
 }
 
 class AuthPasswordResetComplete extends AuthState {}
-class AuthTempLoader extends AuthState{}
-class AuthUserDetailsPending extends AuthState{}
-class AuthFlowError extends AuthState{
+
+class AuthTempLoader extends AuthState {}
+
+class AuthUserDetailsPending extends AuthState {
+  String? error;
+  AuthUserDetailsPending({this.error});
+  @override
+  List<Object?> get props => [error];
+}
+
+class AuthFlowError extends AuthState {
   String error;
   AuthFlowError(this.error);
   @override
-  List<Object> get props=>[error];
+  List<Object> get props => [error];
 }
 
-class AuthError extends AuthState{
+class AuthError extends AuthState {
   String error;
   AuthError(this.error);
   @override
-  List<Object> get props=>[error];
+  List<Object> get props => [error];
 }

@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:video_chat/utils/constants.dart';
+import 'package:video_chat/utils/helper_widgets.dart';
+import 'package:video_chat/utils/meta_assets.dart';
 import 'package:video_chat/utils/meta_styles.dart';
+import 'package:video_chat/utils/upload_media.dart';
 
 import '../../cubits/auth_cubit/auth_cubit.dart';
 import 'auth_helper_widgets.dart';
@@ -21,12 +26,32 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
   String gender = "Cis Female";
   DateTime? dob;
   final _formKey = GlobalKey<FormState>();
+  SelectedMedia? selectedMedia;
+  String imageUrl = '';
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
-        appBar: AppBar(),
-        body: BlocBuilder<AuthCubit, AuthState>(
+        // appBar: AppBar(),
+        body: BlocConsumer<AuthCubit, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUserDetailsPending) {
+              if (state.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    elevation: 0,
+                    // margin: EdgeInsets.only(top: kToolbarHeight),
+                    // padding: EdgeInsets.only(
+                    //    top: kToolbarHeight+5),
+                    backgroundColor: Colors.transparent,
+                    behavior: SnackBarBehavior.fixed,
+                    dismissDirection: DismissDirection.horizontal,
+                    content: MessageWidget(
+                      message: state.error!,
+                      isError: true,
+                    )));
+              }
+            }
+          },
           builder: (context, state) {
             return Form(
               key: _formKey,
@@ -36,7 +61,7 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
                     child: Column(
                   children: [
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * .15,
+                      height: MediaQuery.of(context).size.height * .1,
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -48,6 +73,45 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
                       alignment: Alignment.centerLeft,
                       child: SubtitleWidget(
                           title: "Enter your Name, Date of Birth and Gender"),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: state is AuthTempLoader
+                            ? null
+                            : () async {
+                                selectedMedia =
+                                    await selectMediaWithSourceBottomSheet(
+                                  context: context,
+                                  allowPhoto: true,
+                                  allowVideo: false,
+                                  pickerFontFamily: 'Cormorant Garamond',
+                                );
+                                if (selectedMedia != null &&
+                                    validateFileFormat(
+                                        selectedMedia!.storagePath, context)) {
+                                  setState(() {
+                                    imageUrl = selectedMedia!.localPath;
+                                  });
+                                }
+                              },
+                        child: Container(
+                          // width: MediaQuery.of(context).size.width * .8,
+                          // height: MediaQuery.of(context).size.height * .2,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: selectedMedia == null
+                                ? Image(
+                                    image: AssetImage(
+                                        MetaAssets.dummyProfileImage),
+                                  )
+                                : Image(image: FileImage(File(imageUrl))),
+                          ),
+                        ),
+                      ),
                     ),
                     SizedBox(
                       height: 10,
@@ -146,13 +210,28 @@ class _UserDetailsUpdateState extends State<UserDetailsUpdate> {
                       label: "Update",
                       handler: () {
                         if (!_formKey.currentState!.validate()) return;
+                        if (selectedMedia == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              elevation: 0,
+                              // margin: EdgeInsets.only(top: kToolbarHeight),
+                              // padding: EdgeInsets.only(
+                              //    top: kToolbarHeight+5),
+                              backgroundColor: Colors.transparent,
+                              behavior: SnackBarBehavior.fixed,
+                              dismissDirection: DismissDirection.horizontal,
+                              content: MessageWidget(
+                                message: "Please choose a profile picture",
+                                isError: true,
+                              )));
+                          return;
+                        }
 
-                        context.read<AuthCubit>().updateUserDetails({
-                          "phone": phoneNumberController.text.trim(),
-                          "full_name": nameController.text.trim(),
-                          "dob": dob!.toIso8601String(),
-                          "gender": gender
-                        });
+                        context.read<AuthCubit>().updateUserDetails(
+                            phoneNumberController.text.trim(),
+                            nameController.text.trim(),
+                            dob!,
+                            gender,
+                            selectedMedia!);
                       },
                     ),
                     SizedBox(

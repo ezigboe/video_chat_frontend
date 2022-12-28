@@ -18,6 +18,8 @@ class UserModel with _$UserModel{
     required int diamondBalance,
     required String phone,
     required String gender,
+    required String referralCode,
+    required String profileImage,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, Object?> json)

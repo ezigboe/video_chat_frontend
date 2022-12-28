@@ -14,6 +14,8 @@ _$_UserModel _$$_UserModelFromJson(Map<String, dynamic> json) => _$_UserModel(
       diamondBalance: json['diamondBalance'] as int,
       phone: json['phone'] as String,
       gender: json['gender'] as String,
+      referralCode: json['referralCode'] as String,
+      profileImage: json['profileImage'] as String,
     );
 
 Map<String, dynamic> _$$_UserModelToJson(_$_UserModel instance) =>
@@ -25,4 +27,6 @@ Map<String, dynamic> _$$_UserModelToJson(_$_UserModel instance) =>
       'diamondBalance': instance.diamondBalance,
       'phone': instance.phone,
       'gender': instance.gender,
+      'referralCode': instance.referralCode,
+      'profileImage': instance.profileImage,
     };

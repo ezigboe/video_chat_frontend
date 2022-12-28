@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
 import 'package:video_chat/screens/auth_screens/user_details_update.dart';
 import 'package:video_chat/screens/chat_screen.dart';
+import 'package:video_chat/screens/create_stream_screen.dart';
 import 'package:video_chat/screens/live_stream_screen.dart';
 import 'package:video_chat/screens/live_stream_widget.dart';
 import 'package:video_chat/screens/profile_screen.dart';
@@ -62,6 +64,14 @@ class _HomeScreenState extends State<HomeScreen> {
         if (state is AuthUserDetailsPending) return UserDetailsUpdate();
 
         return Scaffold(
+            floatingActionButton: FloatingActionButton(
+                child: Icon(CupertinoIcons.add),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateStreamScreen()));
+                }),
             bottomNavigationBar: BottomNavigationBar(
                 currentIndex: _currentIndex,
                 onTap: ((value) {
@@ -160,18 +170,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   backgroundColor: Colors.transparent,
                   leading: Padding(
                     padding: const EdgeInsets.all(8.0).copyWith(right: 0),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, color: Colors.white),
-                      child: const Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: CircleAvatar(
-                          radius: 16,
-                          backgroundImage:
-                              AssetImage(MetaAssets.dummyProfileImage),
-                        ),
-                      ),
-                    ),
+                    child: ProfileImage(),
                   ),
                   title: Padding(
                     padding: const EdgeInsets.all(8.0).copyWith(left: 0),
@@ -310,6 +309,32 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ProfileImage extends StatelessWidget {
+  const ProfileImage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      builder: (context, state) {
+        return DecoratedBox(
+          decoration:
+              BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+          child: Padding(
+            padding: EdgeInsets.all(5.0),
+            child: CircleAvatar(
+                radius: 16,
+                child: (state is AuthLoggedIn)
+                    ? CachedNetworkImage(imageUrl: state.userData.profileImage)
+                    : Image.asset(MetaAssets.dummyProfileImage)),
+          ),
+        );
+      },
     );
   }
 }

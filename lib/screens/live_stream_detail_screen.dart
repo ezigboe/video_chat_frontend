@@ -22,14 +22,7 @@ class _LiveStreamDetailsScreenState extends State<LiveStreamDetailsScreen> {
     return Container(
       child: Scaffold(
           appBar: AppBar(),
-          floatingActionButton: FloatingActionButton(
-              child: Icon(CupertinoIcons.add),
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CreateStreamScreen()));
-              }),
+        
           body: Container(
             child: Column(
               children: [

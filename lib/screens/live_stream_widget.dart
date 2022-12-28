@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_chat/auth.dart';
 import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
 import 'package:video_chat/models/stream_model/stream_model.dart';
+import 'package:video_chat/screens/auth_screens/auth_helper_widgets.dart';
 import 'package:video_chat/screens/live_stream_screen.dart';
 import 'package:video_chat/utils/helper_widgets.dart';
 import 'package:video_chat/utils/meta_assets.dart';
@@ -36,6 +37,14 @@ class StreamGridWidget extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is StreamListLoaded) {
+          if (state.data.isEmpty)
+            return SliverToBoxAdapter(
+              child: Center(
+                  child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SubtitleWidget(title: "No Live Streams"),
+              )),
+            );
           return SliverGrid(
               delegate: SliverChildBuilderDelegate(((context, index) {
                 return StreamTileWidget(data: state.data[index]);
@@ -43,7 +52,7 @@ class StreamGridWidget extends StatelessWidget {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2));
         }
-        return Loader();
+        return SliverToBoxAdapter(child: Loader());
       },
     );
   }
