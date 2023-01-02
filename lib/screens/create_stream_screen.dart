@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -27,11 +28,13 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
   String imageUrl = "";
   SelectedMedia? selectedMedia;
   final _formKey = GlobalKey<FormState>();
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
-        appBar: AppBar(),
+        // appBar: AppBar(),
         body: BlocProvider(
           create: (context) => CreateStreamCubit(
               context.read<StreamListCubit>(),
@@ -63,7 +66,7 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
                     dismissDirection: DismissDirection.horizontal,
                     content: MessageWidget(
                       message: state.message,
-                      isError: true,
+                      isError: false,
                     )));
                 Navigator.pop(context);
               }
@@ -77,7 +80,7 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
                       child: Column(
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * .15,
+                        height: MediaQuery.of(context).size.height * .1,
                       ),
                       Align(
                         alignment: Alignment.centerLeft,
@@ -142,15 +145,24 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
                         onTap: () async {
                           DateTime? dateTime = await showDatePicker(
                               context: context,
-                              initialDate: DateTime(DateTime.now().year - 25),
-                              firstDate: DateTime(1947),
-                              lastDate: DateTime(DateTime.now().year - 18));
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime.now().add(Duration(days: 7)));
                           if (dateTime != null) {
-                            setState(() {
-                              startAt = dateTime;
-                              startDateController.text =
-                                  DateFormat("MMM dd , yyyy").format(dateTime);
-                            });
+                            startAt = dateTime;
+                            TimeOfDay? time = await showTimePicker(
+                                context: context, initialTime: TimeOfDay.now());
+                            if (time != null) {
+                              startAt = dateTime.add(Duration(
+                                hours: time.hour,
+                                minutes: time.minute,
+                              ));
+                              setState(() {
+                                startDateController.text =
+                                    DateFormat("MMM dd , yyyy hh:mm a")
+                                        .format(startAt!);
+                              });
+                            }
                           }
                         },
                         enabled: !(state is CreateStreamLoading),
@@ -168,20 +180,33 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
                       ),
                       FormFieldWidget(
                         readOnly: true,
-                        onTap: () async {
-                          DateTime? dateTime = await showDatePicker(
-                              context: context,
-                              initialDate: startAt!,
-                              firstDate: startAt!,
-                              lastDate: DateTime.now().add(Duration(hours: 5)));
-                          if (dateTime != null) {
-                            setState(() {
-                              endAt = dateTime;
-                              endDateController.text =
-                                  DateFormat("MMM dd , yyyy").format(dateTime);
-                            });
-                          }
-                        },
+                        onTap: startAt == null
+                            ? null
+                            : () async {
+                                DateTime? dateTime = await showDatePicker(
+                                    initialEntryMode:
+                                        DatePickerEntryMode.calendarOnly,
+                                    context: context,
+                                    initialDate: startAt!,
+                                    firstDate: startAt!,
+                                    lastDate: startAt!.add(Duration(hours: 5)));
+                                if (dateTime != null) {
+                                  TimeOfDay? time = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now());
+                                  if (time != null) {
+                                    endAt = dateTime.add(Duration(
+                                      hours: time.hour,
+                                      minutes: time.minute,
+                                    ));
+                                    setState(() {
+                                      endDateController.text =
+                                          DateFormat("MMM dd , yyyy hh:mm a")
+                                              .format(endAt!);
+                                    });
+                                  }
+                                }
+                              },
                         enabled: !(state is CreateStreamLoading),
                         textController: endDateController,
                         label: "Stream End At",

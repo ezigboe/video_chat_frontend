@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:video_chat/auth.dart';
 import 'package:video_chat/cubits/auth_cubit/auth_cubit.dart';
+import 'package:video_chat/cubits/stream/stream_cubit.dart';
 import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
 import 'package:video_chat/repositories/auth_repository.dart';
 import 'package:video_chat/repositories/stream_repository.dart';
@@ -39,7 +40,10 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
               create: (context) =>
-                  StreamListCubit(context.read<StreamRepository>()))
+                  StreamListCubit(context.read<StreamRepository>())),
+          BlocProvider(
+              create: (context) =>
+                  StreamCubit(context.read<StreamRepository>()))
         ],
         child: MaterialApp(
           title: 'Flutter Demo',

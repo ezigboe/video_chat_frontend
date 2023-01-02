@@ -116,7 +116,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // }),
           body: CustomScrollView(
         slivers: [
-          AppBarWidget(),
+          // AppBarWidget(),
           SliverFillRemaining(
             child: Container(
               // height: MediaQuery.of(context).size.height-kToolbarHeight,

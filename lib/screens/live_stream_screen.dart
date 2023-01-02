@@ -3,23 +3,37 @@ import 'dart:developer';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:video_chat/screens/home_screen.dart';
+import 'package:video_chat/auth.dart';
+import 'package:video_chat/cubits/stream/stream_cubit.dart';
+import 'package:video_chat/models/stream_model/stream_model.dart';
+import 'package:video_chat/models/user_model/user_model.dart';
+import 'package:video_chat/screens/video_call_screen.dart';
 import 'package:video_chat/utils/agora_config.dart';
+import 'package:video_chat/utils/helper_widgets.dart';
 import 'package:video_chat/utils/meta_colors.dart';
 import 'package:video_chat/utils/meta_styles.dart';
 
 class LiveStreamScreen extends StatefulWidget {
-  const LiveStreamScreen({super.key});
+  final StreamModel data;
+  final bool isHost;
+  final UserModel user;
+  const LiveStreamScreen(
+      {super.key,
+      required this.data,
+      required this.isHost,
+      required this.user});
 
   @override
   State<LiveStreamScreen> createState() => _LiveStreamScreenState();
 }
 
-class _LiveStreamScreenState extends State<LiveStreamScreen> {
+class _LiveStreamScreenState extends State<LiveStreamScreen>
+    with WidgetsBindingObserver {
   int? _remoteUid;
   bool _localUserJoined = false;
-  late RtcEngine _engine;
+  RtcEngine? _engine;
   List<String> _infoStrings = [];
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
@@ -28,25 +42,25 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
   void initState() {
     super.initState();
     try {
-      // initAgora();
+      initAgora();
     } catch (e) {
       log(e.toString());
     }
+    WidgetsBinding.instance.addObserver(this);
   }
 
   Future<void> initAgora() async {
-    log("herrrrrrrrrrrrrrrrrrrrr");
     // retrieve permissions
     await [Permission.microphone, Permission.camera].request();
 
     //create the engine
     _engine = createAgoraRtcEngine();
-    await _engine.initialize(const RtcEngineContext(
+    await _engine!.initialize(const RtcEngineContext(
       appId: appId,
       channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
     ));
 
-    _engine.registerEventHandler(
+    _engine!.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           log("local user ${connection.localUid} joined");
@@ -56,7 +70,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
           });
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-          debugPrint("remote user $remoteUid joined");
+          log("remote user $remoteUid joined");
           _infoStrings.add("remote user $remoteUid joined");
           setState(() {
             _remoteUid = remoteUid;
@@ -64,7 +78,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
         },
         onUserOffline: (RtcConnection connection, int remoteUid,
             UserOfflineReasonType reason) {
-          debugPrint("remote user $remoteUid left channel");
+          log("remote user $remoteUid left channel");
           _infoStrings.add("remote user $remoteUid left channel");
           setState(() {
             _remoteUid = null;
@@ -82,94 +96,179 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
         },
       ),
     );
+    setState(() {});
 
-    await _engine.setClientRole(role: ClientRoleType.clientRoleAudience);
-    // await _engine.setupLocalVideo(VideoCanvas(uid: 3));
-    await _engine.enableVideo();
-    await _engine.startPreview();
-    log("here");
-    await _engine.joinChannel(
-      token: token,
-      channelId: "Test",
-      options: ChannelMediaOptions(
-          clientRoleType: ClientRoleType.clientRoleAudience),
-      uid: 3,
+    await _engine!.setClientRole(
+        role: widget.isHost
+            ? ClientRoleType.clientRoleBroadcaster
+            : ClientRoleType.clientRoleAudience);
+    await _engine!.setupLocalVideo(VideoCanvas(uid: 0));
+    await _engine!.enableVideo();
+    await _engine!.startPreview();
+    joinChannel();
+  }
+
+  joinChannel() async {
+    log("here joining channel ${widget.data.channelId.length}  ${widget.data.channelToken}");
+    await _engine!.joinChannel(
+      token: "Test",
+      channelId: token,
+      options: ChannelMediaOptions(),
+      uid: 0,
     );
-
-    log("here ttttt");
+    log("channel joined");
   }
 
   @override
   void dispose() {
-    _engine.leaveChannel();
-    _engine.stopPreview();
-    _engine.release();
-    log("Channel left");
+    WidgetsBinding.instance.removeObserver(this);
+    endStream();
     super.dispose();
+  }
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      context.read<StreamCubit>().leaveStream(widget.data.id);
+    }
+  }
+
+  endStream() {
+    _engine?.leaveChannel();
+    _engine?.stopPreview();
+    _engine?.release();
+    log("Channel left");
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-          // resizeToAvoidBottomInset: false,
-          body: CustomScrollView(
-        slivers: [
-          AppBarWidget(),
-          SliverFillRemaining(
-            child: Center(
-              child: Stack(
-                children: [
-                  Center(
-                    child: _remoteVideo(),
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        MessagesWidget(scrollController: scrollController, infoStrings: _infoStrings),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextFormField(
-                            controller: messageController,
-                            decoration: MetaStyles.formFieldDecoration(
-                                "Send Message",
-                                suffix: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      _infoStrings.add(messageController.text);
-                                      setState(() {});
-                                      log(_infoStrings.toString());
-                                      scrollController.animateTo(
-                                          scrollController
-                                              .position.maxScrollExtent,
-                                          duration: Duration(milliseconds: 500),
-                                          curve: Curves.easeIn);
-                                    },
-                                    child: CircleAvatar(
-                                      radius: 10,
-                                      backgroundColor: MetaColors.primaryColor,
-                                      child: Icon(
-                                        Icons.send,
-                                        color: Colors.white,
-                                        size: 19,
+    return WillPopScope(
+      onWillPop: () async {
+        context.read<StreamCubit>().leaveStream(widget.data.id);
+        return Future.value(false);
+      },
+      child: Container(
+        child: Scaffold(
+            // resizeToAvoidBottomInset: false,
+            body: _engine == null
+                ? Loader()
+                : BlocConsumer<StreamCubit, StreamState>(
+                    listener: (context, state) {
+                      if (state is StreamLeftState) {
+                        Navigator.pop(context);
+                      }
+                      if (state is StreamError) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            elevation: 0,
+                            // margin: EdgeInsets.only(top: kToolbarHeight),
+                            // padding: EdgeInsets.only(
+                            //    top: kToolbarHeight+5),
+                            backgroundColor: Colors.transparent,
+                            behavior: SnackBarBehavior.fixed,
+                            dismissDirection: DismissDirection.horizontal,
+                            content: MessageWidget(
+                              message: state.error,
+                              isError: true,
+                            )));
+                        Navigator.pop(context);
+                      }
+                      // TODO: implement listener
+                    },
+                    builder: (context, state) {
+                      if (state is StreamInitialState) return Loader();
+                      if (state is StreamJoinedState) {
+                        return CustomScrollView(
+                          slivers: [
+                            LiveStreamAppBarWidget(
+                              data: widget.data,
+                            ),
+                            SliverFillRemaining(
+                              child: Center(
+                                child: Stack(
+                                  children: [
+                                    widget.isHost
+                                        ? Center(
+                                            child:
+                                                LocalUserView(engine: _engine!),
+                                          )
+                                        : Center(
+                                            child: _remoteVideo(),
+                                          ),
+                                    Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          MessagesWidget(
+                                              scrollController:
+                                                  scrollController,
+                                              infoStrings: _infoStrings),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(15)),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: TextFormField(
+                                                controller: messageController,
+                                                decoration: MetaStyles
+                                                    .formFieldDecoration(
+                                                        "Send Message",
+                                                        suffix: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(8.0),
+                                                          child: InkWell(
+                                                            onTap: () {
+                                                              _infoStrings.add(
+                                                                  messageController
+                                                                      .text);
+                                                              setState(() {});
+                                                              log(_infoStrings
+                                                                  .toString());
+                                                              scrollController.animateTo(
+                                                                  scrollController
+                                                                      .position
+                                                                      .maxScrollExtent,
+                                                                  duration: Duration(
+                                                                      milliseconds:
+                                                                          500),
+                                                                  curve: Curves
+                                                                      .easeIn);
+                                                            },
+                                                            child: CircleAvatar(
+                                                              radius: 10,
+                                                              backgroundColor:
+                                                                  MetaColors
+                                                                      .primaryColor,
+                                                              child: Icon(
+                                                                Icons.send,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 19,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        )),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      )),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return SizedBox.shrink();
+                    },
+                  )),
+      ),
     );
   }
 
@@ -181,9 +280,9 @@ class _LiveStreamScreenState extends State<LiveStreamScreen> {
         height: 700,
         child: AgoraVideoView(
           controller: VideoViewController.remote(
-            rtcEngine: _engine,
+            rtcEngine: _engine!,
             canvas: VideoCanvas(uid: _remoteUid),
-            connection: const RtcConnection(channelId: "Test"),
+            connection: RtcConnection(channelId: widget.data.channelId),
           ),
         ),
       );
@@ -201,7 +300,8 @@ class MessagesWidget extends StatelessWidget {
     Key? key,
     required this.scrollController,
     required List<String> infoStrings,
-  }) : _infoStrings = infoStrings, super(key: key);
+  })  : _infoStrings = infoStrings,
+        super(key: key);
 
   final ScrollController scrollController;
   final List<String> _infoStrings;
@@ -211,8 +311,8 @@ class MessagesWidget extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomLeft,
       child: SizedBox(
-        width:MediaQuery.of(context).size.width*.5,
-        height:MediaQuery.of(context).size.height*.25,
+        width: MediaQuery.of(context).size.width * .5,
+        height: MediaQuery.of(context).size.height * .25,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView.builder(
@@ -225,8 +325,7 @@ class MessagesWidget extends StatelessWidget {
                   child: Container(
                       decoration: BoxDecoration(
                           color: Colors.white12,
-                          borderRadius:
-                              BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12)),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
@@ -241,6 +340,53 @@ class MessagesWidget extends StatelessWidget {
               }),
         ),
       ),
+    );
+  }
+}
+
+class LiveStreamAppBarWidget extends StatelessWidget {
+  const LiveStreamAppBarWidget({Key? key, required this.data})
+      : super(key: key);
+  final StreamModel data;
+  @override
+  Widget build(BuildContext context) {
+    return SliverAppBar(
+      // collapsedHeight: 100,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      leading: IconButton(
+        icon: Icon(Icons.logout),
+        onPressed: () {
+          context.read<StreamCubit>().leaveStream(data.id);
+        },
+      ),
+      title: Text(data.title),
+      actions: [
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              height: 20,
+              child: Center(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  child: Text(
+                    "Live",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient:
+                      LinearGradient(colors: [Colors.redAccent, Colors.red])),
+            ),
+          ),
+        )
+      ],
     );
   }
 }

@@ -17,11 +17,22 @@ class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _authRepository;
   AuthCubit(this._authRepository) : super(AuthLoading());
   StreamSubscription? _authSubscription;
+  StreamController? timer;
   late String authToken;
   FlutterSecureStorage storage = new FlutterSecureStorage();
   late UserRepository _userRepository;
   initAuth() async {
     emit(AuthLoading());
+    timer?.close();
+    timer = StreamController<DateTime>.broadcast();
+
+    Stream.periodic(Duration(minutes: 1), (value) {
+      return value;
+    }).listen((event) {
+      log("value");
+      timer!.sink.add(DateTime.now());
+    });
+
     _authSubscription?.cancel();
 
     _authSubscription =
@@ -121,8 +132,8 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  updateUserDetails(
-      String phone, String fullName, DateTime dob, String gender,SelectedMedia media) async {
+  updateUserDetails(String phone, String fullName, DateTime dob, String gender,
+      SelectedMedia media) async {
     try {
       emit(AuthLoading());
 

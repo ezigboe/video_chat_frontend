@@ -20,6 +20,7 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$UserModel {
+  String get id => throw _privateConstructorUsedError;
   String get fullName => throw _privateConstructorUsedError;
   String get email => throw _privateConstructorUsedError;
   DateTime get dob => throw _privateConstructorUsedError;
@@ -42,7 +43,8 @@ abstract class $UserModelCopyWith<$Res> {
       _$UserModelCopyWithImpl<$Res, UserModel>;
   @useResult
   $Res call(
-      {String fullName,
+      {String id,
+      String fullName,
       String email,
       DateTime dob,
       int goldBalance,
@@ -66,6 +68,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? fullName = null,
     Object? email = null,
     Object? dob = null,
@@ -77,6 +80,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? profileImage = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       fullName: null == fullName
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
@@ -125,7 +132,8 @@ abstract class _$$_UserModelCopyWith<$Res> implements $UserModelCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String fullName,
+      {String id,
+      String fullName,
       String email,
       DateTime dob,
       int goldBalance,
@@ -147,6 +155,7 @@ class __$$_UserModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? fullName = null,
     Object? email = null,
     Object? dob = null,
@@ -158,6 +167,10 @@ class __$$_UserModelCopyWithImpl<$Res>
     Object? profileImage = null,
   }) {
     return _then(_$_UserModel(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       fullName: null == fullName
           ? _value.fullName
           : fullName // ignore: cast_nullable_to_non_nullable
@@ -202,7 +215,8 @@ class __$$_UserModelCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
   const _$_UserModel(
-      {required this.fullName,
+      {required this.id,
+      required this.fullName,
       required this.email,
       required this.dob,
       required this.goldBalance,
@@ -215,6 +229,8 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
   factory _$_UserModel.fromJson(Map<String, dynamic> json) =>
       _$$_UserModelFromJson(json);
 
+  @override
+  final String id;
   @override
   final String fullName;
   @override
@@ -236,7 +252,7 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'UserModel(fullName: $fullName, email: $email, dob: $dob, goldBalance: $goldBalance, diamondBalance: $diamondBalance, phone: $phone, gender: $gender, referralCode: $referralCode, profileImage: $profileImage)';
+    return 'UserModel(id: $id, fullName: $fullName, email: $email, dob: $dob, goldBalance: $goldBalance, diamondBalance: $diamondBalance, phone: $phone, gender: $gender, referralCode: $referralCode, profileImage: $profileImage)';
   }
 
   @override
@@ -244,6 +260,7 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'UserModel'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('fullName', fullName))
       ..add(DiagnosticsProperty('email', email))
       ..add(DiagnosticsProperty('dob', dob))
@@ -260,6 +277,7 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_UserModel &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
             (identical(other.email, email) || other.email == email) &&
@@ -278,7 +296,7 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, fullName, email, dob,
+  int get hashCode => Object.hash(runtimeType, id, fullName, email, dob,
       goldBalance, diamondBalance, phone, gender, referralCode, profileImage);
 
   @JsonKey(ignore: true)
@@ -297,7 +315,8 @@ class _$_UserModel with DiagnosticableTreeMixin implements _UserModel {
 
 abstract class _UserModel implements UserModel {
   const factory _UserModel(
-      {required final String fullName,
+      {required final String id,
+      required final String fullName,
       required final String email,
       required final DateTime dob,
       required final int goldBalance,
@@ -310,6 +329,8 @@ abstract class _UserModel implements UserModel {
   factory _UserModel.fromJson(Map<String, dynamic> json) =
       _$_UserModel.fromJson;
 
+  @override
+  String get id;
   @override
   String get fullName;
   @override

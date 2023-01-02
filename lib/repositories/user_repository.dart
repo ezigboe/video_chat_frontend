@@ -22,19 +22,20 @@ class UserRepository {
     return await FlutterSecureStorage().read(key: 'token') ?? authToken;
   }
 
-  updateUserDetails(String fullName, String email, String phone, String profileImage,String gender,DateTime dob) async {
+  updateUserDetails(String fullName, String email, String phone,
+      String profileImage, String gender, DateTime dob) async {
     try {
       var headers = {
         "Authorization": "Bearer $authToken",
         "Content-Type": "application/json"
       };
-      var params={
-        "fullName":fullName,
-        "dob":dob.toIso8601String(),
-        "gender":gender,
-        "profileImage":profileImage,
-        "email":email,
-        "phone":phone,
+      var params = {
+        "fullName": fullName,
+        "dob": dob.toUtc().toIso8601String(),
+        "gender": gender,
+        "profileImage": profileImage,
+        "email": email,
+        "phone": phone,
       };
       http.Response response = await http.post(
           Uri.parse(MetaStrings.userUpdateUrl),

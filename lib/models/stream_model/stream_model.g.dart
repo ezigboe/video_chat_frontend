@@ -8,6 +8,7 @@ part of 'stream_model.dart';
 
 _$_StreamModel _$$_StreamModelFromJson(Map<String, dynamic> json) =>
     _$_StreamModel(
+      id: json['id'] as String,
       title: json['title'] as String,
       hostName: json['hostName'] as String,
       startAt: DateTime.parse(json['startAt'] as String),
@@ -16,10 +17,12 @@ _$_StreamModel _$$_StreamModelFromJson(Map<String, dynamic> json) =>
       channelToken: json['channelToken'] as String,
       hostId: json['hostId'] as String,
       thumbnailUrl: json['thumbnailUrl'] as String,
+      hostProfileImage: json['hostProfileImage'] as String,
     );
 
 Map<String, dynamic> _$$_StreamModelToJson(_$_StreamModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'title': instance.title,
       'hostName': instance.hostName,
       'startAt': instance.startAt.toIso8601String(),
@@ -28,4 +31,5 @@ Map<String, dynamic> _$$_StreamModelToJson(_$_StreamModel instance) =>
       'channelToken': instance.channelToken,
       'hostId': instance.hostId,
       'thumbnailUrl': instance.thumbnailUrl,
+      'hostProfileImage': instance.hostProfileImage,
     };

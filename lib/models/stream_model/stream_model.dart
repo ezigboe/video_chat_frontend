@@ -11,6 +11,7 @@ part 'stream_model.g.dart';
 @freezed
 class StreamModel with _$StreamModel {
   const factory StreamModel({
+    required String id,
     required String title,
     required String hostName,
     required DateTime startAt,
@@ -19,6 +20,7 @@ class StreamModel with _$StreamModel {
     required String channelToken,
     required String hostId,
     required String thumbnailUrl,
+    required String hostProfileImage,
   }) = _StreamModel;
 
   factory StreamModel.fromJson(Map<String, Object?> json) =>

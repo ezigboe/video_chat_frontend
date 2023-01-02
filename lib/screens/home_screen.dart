@@ -326,13 +326,17 @@ class ProfileImage extends StatelessWidget {
           decoration:
               BoxDecoration(shape: BoxShape.circle, color: Colors.white),
           child: Padding(
-            padding: EdgeInsets.all(5.0),
-            child: CircleAvatar(
-                radius: 16,
-                child: (state is AuthLoggedIn)
-                    ? CachedNetworkImage(imageUrl: state.userData.profileImage)
-                    : Image.asset(MetaAssets.dummyProfileImage)),
-          ),
+              padding: EdgeInsets.all(5.0),
+              child: (state is AuthLoggedIn)
+                  ? CircleAvatar(
+                      radius: 16,
+                      backgroundImage: CachedNetworkImageProvider(
+                        state.userData.profileImage,
+                      ))
+                  : CircleAvatar(
+                      radius: 16,
+                      backgroundImage:
+                          AssetImage(MetaAssets.dummyProfileImage))),
         );
       },
     );

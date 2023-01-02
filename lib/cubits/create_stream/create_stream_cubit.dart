@@ -19,11 +19,12 @@ class CreateStreamCubit extends Cubit<CreateStreamState> {
       StreamListCubit streamListCubit, StreamRepository streamRepository)
       : _streamListCubit = streamListCubit,
         _streamRepository = streamRepository,
-        super(CreateStreamLoading());
+        super(CreateStreamInitial());
 
   createStream(String title, DateTime startAt, DateTime endAt,
       {SelectedMedia? media}) async {
     try {
+      emit(CreateStreamLoading());
       if (media != null) {
         Stream<TaskSnapshot> result =
             uploadData(media.storagePath, media.bytes);
@@ -50,7 +51,7 @@ class CreateStreamCubit extends Cubit<CreateStreamState> {
                   title: title,
                   startAt: startAt,
                   endAt: endAt,
-                  thumbnailUrl: url);
+                  thumbnailUrl: null);
               _streamListCubit.getData();
               emit(CreateStreamSuccess("Stream Scheduled Succesfully"));
             }

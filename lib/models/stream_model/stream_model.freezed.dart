@@ -20,6 +20,7 @@ StreamModel _$StreamModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$StreamModel {
+  String get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String get hostName => throw _privateConstructorUsedError;
   DateTime get startAt => throw _privateConstructorUsedError;
@@ -28,6 +29,7 @@ mixin _$StreamModel {
   String get channelToken => throw _privateConstructorUsedError;
   String get hostId => throw _privateConstructorUsedError;
   String get thumbnailUrl => throw _privateConstructorUsedError;
+  String get hostProfileImage => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -42,14 +44,16 @@ abstract class $StreamModelCopyWith<$Res> {
       _$StreamModelCopyWithImpl<$Res, StreamModel>;
   @useResult
   $Res call(
-      {String title,
+      {String id,
+      String title,
       String hostName,
       DateTime startAt,
       DateTime endAt,
       String channelId,
       String channelToken,
       String hostId,
-      String thumbnailUrl});
+      String thumbnailUrl,
+      String hostProfileImage});
 }
 
 /// @nodoc
@@ -65,6 +69,7 @@ class _$StreamModelCopyWithImpl<$Res, $Val extends StreamModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? title = null,
     Object? hostName = null,
     Object? startAt = null,
@@ -73,8 +78,13 @@ class _$StreamModelCopyWithImpl<$Res, $Val extends StreamModel>
     Object? channelToken = null,
     Object? hostId = null,
     Object? thumbnailUrl = null,
+    Object? hostProfileImage = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -106,6 +116,10 @@ class _$StreamModelCopyWithImpl<$Res, $Val extends StreamModel>
       thumbnailUrl: null == thumbnailUrl
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      hostProfileImage: null == hostProfileImage
+          ? _value.hostProfileImage
+          : hostProfileImage // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -120,14 +134,16 @@ abstract class _$$_StreamModelCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String title,
+      {String id,
+      String title,
       String hostName,
       DateTime startAt,
       DateTime endAt,
       String channelId,
       String channelToken,
       String hostId,
-      String thumbnailUrl});
+      String thumbnailUrl,
+      String hostProfileImage});
 }
 
 /// @nodoc
@@ -141,6 +157,7 @@ class __$$_StreamModelCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? title = null,
     Object? hostName = null,
     Object? startAt = null,
@@ -149,8 +166,13 @@ class __$$_StreamModelCopyWithImpl<$Res>
     Object? channelToken = null,
     Object? hostId = null,
     Object? thumbnailUrl = null,
+    Object? hostProfileImage = null,
   }) {
     return _then(_$_StreamModel(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -183,6 +205,10 @@ class __$$_StreamModelCopyWithImpl<$Res>
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String,
+      hostProfileImage: null == hostProfileImage
+          ? _value.hostProfileImage
+          : hostProfileImage // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -191,18 +217,22 @@ class __$$_StreamModelCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
   const _$_StreamModel(
-      {required this.title,
+      {required this.id,
+      required this.title,
       required this.hostName,
       required this.startAt,
       required this.endAt,
       required this.channelId,
       required this.channelToken,
       required this.hostId,
-      required this.thumbnailUrl});
+      required this.thumbnailUrl,
+      required this.hostProfileImage});
 
   factory _$_StreamModel.fromJson(Map<String, dynamic> json) =>
       _$$_StreamModelFromJson(json);
 
+  @override
+  final String id;
   @override
   final String title;
   @override
@@ -219,10 +249,12 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
   final String hostId;
   @override
   final String thumbnailUrl;
+  @override
+  final String hostProfileImage;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'StreamModel(title: $title, hostName: $hostName, startAt: $startAt, endAt: $endAt, channelId: $channelId, channelToken: $channelToken, hostId: $hostId, thumbnailUrl: $thumbnailUrl)';
+    return 'StreamModel(id: $id, title: $title, hostName: $hostName, startAt: $startAt, endAt: $endAt, channelId: $channelId, channelToken: $channelToken, hostId: $hostId, thumbnailUrl: $thumbnailUrl, hostProfileImage: $hostProfileImage)';
   }
 
   @override
@@ -230,6 +262,7 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'StreamModel'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('title', title))
       ..add(DiagnosticsProperty('hostName', hostName))
       ..add(DiagnosticsProperty('startAt', startAt))
@@ -237,7 +270,8 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
       ..add(DiagnosticsProperty('channelId', channelId))
       ..add(DiagnosticsProperty('channelToken', channelToken))
       ..add(DiagnosticsProperty('hostId', hostId))
-      ..add(DiagnosticsProperty('thumbnailUrl', thumbnailUrl));
+      ..add(DiagnosticsProperty('thumbnailUrl', thumbnailUrl))
+      ..add(DiagnosticsProperty('hostProfileImage', hostProfileImage));
   }
 
   @override
@@ -245,6 +279,7 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_StreamModel &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.hostName, hostName) ||
                 other.hostName == hostName) &&
@@ -256,13 +291,15 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
                 other.channelToken == channelToken) &&
             (identical(other.hostId, hostId) || other.hostId == hostId) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
-                other.thumbnailUrl == thumbnailUrl));
+                other.thumbnailUrl == thumbnailUrl) &&
+            (identical(other.hostProfileImage, hostProfileImage) ||
+                other.hostProfileImage == hostProfileImage));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, title, hostName, startAt, endAt,
-      channelId, channelToken, hostId, thumbnailUrl);
+  int get hashCode => Object.hash(runtimeType, id, title, hostName, startAt,
+      endAt, channelId, channelToken, hostId, thumbnailUrl, hostProfileImage);
 
   @JsonKey(ignore: true)
   @override
@@ -280,18 +317,22 @@ class _$_StreamModel with DiagnosticableTreeMixin implements _StreamModel {
 
 abstract class _StreamModel implements StreamModel {
   const factory _StreamModel(
-      {required final String title,
+      {required final String id,
+      required final String title,
       required final String hostName,
       required final DateTime startAt,
       required final DateTime endAt,
       required final String channelId,
       required final String channelToken,
       required final String hostId,
-      required final String thumbnailUrl}) = _$_StreamModel;
+      required final String thumbnailUrl,
+      required final String hostProfileImage}) = _$_StreamModel;
 
   factory _StreamModel.fromJson(Map<String, dynamic> json) =
       _$_StreamModel.fromJson;
 
+  @override
+  String get id;
   @override
   String get title;
   @override
@@ -308,6 +349,8 @@ abstract class _StreamModel implements StreamModel {
   String get hostId;
   @override
   String get thumbnailUrl;
+  @override
+  String get hostProfileImage;
   @override
   @JsonKey(ignore: true)
   _$$_StreamModelCopyWith<_$_StreamModel> get copyWith =>

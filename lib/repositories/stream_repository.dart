@@ -28,7 +28,8 @@ class StreamRepository {
       log(response.body);
       if (response.statusCode == 200) {
         return jsonDecode(response.body)["streams"]
-            .map<StreamModel>((e) => StreamModel.fromJson(e)).toList();
+            .map<StreamModel>((e) => StreamModel.fromJson(e))
+            .toList();
       } else {
         throw Exception(jsonDecode(response.body)["errors"][0]["message"] +
             response.statusCode);
@@ -46,7 +47,7 @@ class StreamRepository {
         "Content-Type": "application/json"
       };
       log(headers.toString());
-      var params = {"id": id, "startAt": startAt.toIso8601String()};
+      var params = {"id": id, "startAt": startAt.toUtc().toIso8601String()};
       http.Response response = await http.post(
           Uri.parse(MetaStrings.liveStreamJoinUrl),
           headers: headers,
@@ -71,14 +72,15 @@ class StreamRepository {
         "Content-Type": "application/json"
       };
       log(headers.toString());
-      var params = {"id": id, "endAt": endAt.toIso8601String()};
+      var params = {"id": id, "endAt": endAt.toUtc().toIso8601String()};
       http.Response response = await http.post(
           Uri.parse(MetaStrings.liveStreamLeaveUrl),
           headers: headers,
           body: jsonEncode(params));
-      log(response.body);
+          log("here-e-e-e-e-e")
+;      log("Stream left response ${response.body.toString()}");
       if (response.statusCode == 200) {
-        return StreamModel.fromJson(jsonDecode(response.body)["stream"]);
+        return  true;//StreamModel.fromJson(jsonDecode(response.body)["stream"]);
       } else {
         throw Exception(jsonDecode(response.body)["errors"]["message"] +
             response.statusCode);
@@ -102,8 +104,8 @@ class StreamRepository {
       log(headers.toString());
       var params = {
         "title": title,
-        "startAt": startAt.toIso8601String(),
-        "endAt": endAt.toIso8601String(),
+        "startAt": startAt.toUtc().toIso8601String(),
+        "endAt": endAt.toUtc().toIso8601String(),
         "thumbnailUrl": thumbnailUrl
       };
       http.Response response = await http.post(
@@ -111,11 +113,12 @@ class StreamRepository {
           headers: headers,
           body: jsonEncode(params));
       log(response.body);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return StreamModel.fromJson(jsonDecode(response.body)["stream"]);
       } else {
-        throw Exception(jsonDecode(response.body)["errors"]["message"] +
-            response.statusCode);
+        throw jsonDecode(response.body)["errors"][0]["message"] +
+            " " +
+            response.statusCode.toString();
       }
     } catch (e) {
       rethrow;

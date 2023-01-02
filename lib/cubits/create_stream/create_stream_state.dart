@@ -7,7 +7,7 @@ class CreateStreamState extends Equatable {
   // TODO: implement props
   List<Object?> get props => [];
 }
-
+class CreateStreamInitial extends CreateStreamState{}
 class CreateStreamLoading extends CreateStreamState {}
 
 class CreateStreamUploading extends CreateStreamState {
