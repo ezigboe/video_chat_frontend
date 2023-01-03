@@ -19,6 +19,8 @@ class StreamCubit extends Cubit<StreamState> {
       await _streamRepository.joinStream(stream.id, DateTime.now());
       emit(StreamJoinedState());
       Future.delayed(stream.endAt.difference(stream.startAt), () {
+        log("Duration Ended");
+        log(stream.endAt.toLocal().difference(DateTime.now()).toString());
         if (state is StreamJoinedState) leaveStream(stream.id);
       });
     } catch (e) {

@@ -86,7 +86,7 @@ class _LiveStreamDetailsScreenState extends State<LiveStreamDetailsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    "${DateFormat('MMM dd, yyyy hh:mm a').format(widget.data.startAt)}",
+                                    "${DateFormat('MMM dd, yyyy hh:mm a').format(widget.data.startAt.toLocal())}",
                                     style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600),
@@ -95,8 +95,12 @@ class _LiveStreamDetailsScreenState extends State<LiveStreamDetailsScreen> {
                               ],
                             ),
                           ),
-                          if (widget.data.startAt.isBefore(DateTime.now()) &&
-                              widget.data.endAt.isAfter(DateTime.now()))
+                          if (widget.data.startAt
+                                  .toLocal()
+                                  .isBefore(DateTime.now()) &&
+                              widget.data.endAt
+                                  .toLocal()
+                                  .isAfter(DateTime.now()))
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -133,7 +137,7 @@ class _LiveStreamDetailsScreenState extends State<LiveStreamDetailsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    "${DateFormat('MMM dd, yyyy hh:mm a').format(widget.data.endAt)}",
+                                    "${DateFormat('MMM dd, yyyy hh:mm a').format(widget.data.endAt.toLocal())}",
                                     style: TextStyle(
                                         fontSize: 15,
                                         fontWeight: FontWeight.w600),
@@ -205,32 +209,30 @@ class _LiveStreamDetailsScreenState extends State<LiveStreamDetailsScreen> {
             ),
             // if (widget.data.startAt.isBefore(DateTime.now()) &&
             //     widget.data.endAt.isAfter(DateTime.now()))
-              BlocBuilder<AuthCubit, AuthState>(
-                builder: (context, state) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Center(
-                      child: CustomButton(
-                          handler: () {
-                            if (state is AuthLoggedIn) {
-                              context
-                                  .read<StreamCubit>()
-                                  .joinStream(widget.data);
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LiveStreamScreen(
-                                          user: state.userData,
-                                          data: widget.data,
-                                          isHost: widget.data.hostId ==
-                                              state.userData.id)));
-                            }
-                          },
-                          label: "Join"),
-                    ),
-                  );
-                },
-              ),
+            BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, state) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: CustomButton(
+                        handler: () {
+                          if (state is AuthLoggedIn) {
+                            context.read<StreamCubit>().joinStream(widget.data);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LiveStreamScreen(
+                                        user: state.userData,
+                                        data: widget.data,
+                                        isHost: widget.data.hostId ==
+                                            state.userData.id)));
+                          }
+                        },
+                        label: "Join"),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       )),

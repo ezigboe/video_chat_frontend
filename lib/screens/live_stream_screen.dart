@@ -109,10 +109,10 @@ class _LiveStreamScreenState extends State<LiveStreamScreen>
   }
 
   joinChannel() async {
-    log("here joining channel ${widget.data.channelId.length}  ${widget.data.channelToken}");
+    log("here joining channel ${widget.data.channelId}  ${widget.data.channelToken}");
     await _engine!.joinChannel(
-      token: "Test",
-      channelId: token,
+      token: widget.data.channelToken,
+      channelId: widget.data.channelId,
       options: ChannelMediaOptions(),
       uid: 0,
     );
@@ -128,6 +128,7 @@ class _LiveStreamScreenState extends State<LiveStreamScreen>
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
+      log("Paused-------------");
       context.read<StreamCubit>().leaveStream(widget.data.id);
     }
   }
