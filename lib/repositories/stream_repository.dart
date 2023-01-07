@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:video_chat/models/stream_model/stream_model.dart';
 import 'package:video_chat/utils/meta_strings.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class StreamRepository {
   StreamRepository() {}
@@ -77,10 +78,10 @@ class StreamRepository {
           Uri.parse(MetaStrings.liveStreamLeaveUrl),
           headers: headers,
           body: jsonEncode(params));
-          log("here-e-e-e-e-e")
-;      log("Stream left response ${response.body.toString()}");
+      log("here-e-e-e-e-e");
+      log("Stream left response ${response.body.toString()}");
       if (response.statusCode == 200) {
-        return  true;//StreamModel.fromJson(jsonDecode(response.body)["stream"]);
+        return true; //StreamModel.fromJson(jsonDecode(response.body)["stream"]);
       } else {
         throw Exception(jsonDecode(response.body)["errors"]["message"] +
             response.statusCode);
@@ -120,6 +121,27 @@ class StreamRepository {
             " " +
             response.statusCode.toString();
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<IO.Socket> getSocket(StreamModel stream) async {
+    try {
+      authToken = await getToken();
+      var headers = {
+        "Authorization": "Bearer $authToken",
+        "Content-Type": "application/json"
+      };
+      IO.Socket socket = IO.io(
+          MetaStrings.socketBaseUrl,
+          IO.OptionBuilder()
+              .setTransports(['websocket']) // for Flutter or Dart VM
+              .disableAutoConnect() // disable auto-connection
+              .setExtraHeaders(headers) // optional
+              .build());
+      socket.connect();
+      return socket;
     } catch (e) {
       rethrow;
     }
