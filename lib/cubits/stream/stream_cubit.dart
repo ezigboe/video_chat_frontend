@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:video_chat/cubits/auth_cubit/auth_cubit.dart';
 import 'package:video_chat/models/stream_chat_model/stream_chat_model.dart';
 import 'package:video_chat/models/stream_model/stream_model.dart';
 import 'package:video_chat/repositories/stream_repository.dart';
@@ -13,11 +14,13 @@ part 'stream_state.dart';
 
 class StreamCubit extends Cubit<StreamState> {
   final StreamRepository _streamRepository;
-  StreamCubit(StreamRepository streamRepository)
+  StreamCubit(StreamRepository streamRepository, AuthCubit authCubit)
       : _streamRepository = streamRepository,
+        _authCubit = authCubit,
         super(StreamInitialState());
   late StreamController<StreamChatModel> messageStreamController;
   late IO.Socket socket;
+  AuthCubit _authCubit;
   late StreamModel streamModel;
   List<StreamChatModel> streamMessages = [];
 
@@ -46,7 +49,6 @@ class StreamCubit extends Cubit<StreamState> {
         await _streamRepository.leaveStream(streamModel.id, DateTime.now());
         socket.emit('disconnect');
         socket.clearListeners();
-        socket.disconnect();
         messageStreamController.close();
       }
       emit(StreamLeftState());
@@ -57,7 +59,7 @@ class StreamCubit extends Cubit<StreamState> {
 
   void initiateChatThread() async {
     try {
-      socket = await _streamRepository.getSocket(streamModel);
+      socket = _authCubit.socket;
       registerHandlers();
     } catch (e) {
       emit(StreamError(e.toString()));
@@ -70,10 +72,8 @@ class StreamCubit extends Cubit<StreamState> {
       messageStreamController = StreamController<StreamChatModel>.broadcast();
     });
     socket.on('msg_data', (data) {
-      log("rece message building ${data[0]}");
       streamMessages.add(StreamChatModel.fromJson(data[0]));
       messageStreamController.sink.add(StreamChatModel.fromJson(data[0]));
-      log(streamMessages.length.toString());
     });
     socket.onDisconnect((_) => log('disconnecteddddddd'));
   }

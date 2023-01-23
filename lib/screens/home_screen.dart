@@ -64,14 +64,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if (state is AuthUserDetailsPending) return UserDetailsUpdate();
 
         return Scaffold(
-            floatingActionButton: FloatingActionButton(
-                child: Icon(CupertinoIcons.add),
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CreateStreamScreen()));
-                }),
             bottomNavigationBar: BottomNavigationBar(
                 currentIndex: _currentIndex,
                 onTap: ((value) {
@@ -155,159 +147,170 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
       color: Colors.black);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        // fit: StackFit.expand,
-        children: [
-          DecoratedBoxTransition(
-            position: DecorationPosition.background,
-            decoration: DecorationTween(
-                    begin: BoxDecoration(color: MetaColors.primaryColor),
-                    end: BoxDecoration(color: Colors.white))
-                .animate(controller),
-            child: Scaffold(
-                appBar: AppBar(
-                  backgroundColor: Colors.transparent,
-                  leading: Padding(
-                    padding: const EdgeInsets.all(8.0).copyWith(right: 0),
-                    child: ProfileImage(),
-                  ),
-                  title: Padding(
-                    padding: const EdgeInsets.all(8.0).copyWith(left: 0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: BlocBuilder<AuthCubit, AuthState>(
-                            builder: (context, state) {
-                              return DefaultTextStyleTransition(
-                                  child: Text(
-                                      "Hi, ${state is AuthLoggedIn ? state.userData.fullName ?? "User" : "User"}"),
-                                  style: CurvedAnimation(
-                                          parent: controller,
-                                          curve: Curves.elasticOut)
-                                      .drive(TextStyleTween(
-                                          begin: initialStyle,
-                                          end: finalStyle)));
-                            },
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+                    child: Icon(CupertinoIcons.add),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CreateStreamScreen()));
+                    }),
+      body: Container(
+        child: Stack(
+          // fit: StackFit.expand,
+          children: [
+            DecoratedBoxTransition(
+              position: DecorationPosition.background,
+              decoration: DecorationTween(
+                      begin: BoxDecoration(color: MetaColors.primaryColor),
+                      end: BoxDecoration(color: Colors.white))
+                  .animate(controller),
+              child: Scaffold(
+                  
+                  appBar: AppBar(
+                    backgroundColor: Colors.transparent,
+                    leading: Padding(
+                      padding: const EdgeInsets.all(8.0).copyWith(right: 0),
+                      child: ProfileImage(),
+                    ),
+                    title: Padding(
+                      padding: const EdgeInsets.all(8.0).copyWith(left: 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: BlocBuilder<AuthCubit, AuthState>(
+                              builder: (context, state) {
+                                return DefaultTextStyleTransition(
+                                    child: Text(
+                                        "Hi, ${state is AuthLoggedIn ? state.userData.fullName ?? "User" : "User"}"),
+                                    style: CurvedAnimation(
+                                            parent: controller,
+                                            curve: Curves.elasticOut)
+                                        .drive(TextStyleTween(
+                                            begin: initialStyle,
+                                            end: finalStyle)));
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                backgroundColor: Colors.transparent,
-                body: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SideTile(
-                        handler: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ProfileScreen()));
-                        },
-                        icon: Icon(
-                          CupertinoIcons.person_alt,
-                          color: Colors.white,
+                  backgroundColor: Colors.transparent,
+                  body: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SideTile(
+                          handler: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ProfileScreen()));
+                          },
+                          icon: Icon(
+                            CupertinoIcons.person_alt,
+                            color: Colors.white,
+                          ),
+                          title: "Profile",
                         ),
-                        title: "Profile",
-                      ),
-                      SideTile(
-                        handler: () {},
-                        icon: Icon(
-                          CupertinoIcons.money_dollar_circle_fill,
-                          color: Colors.white,
+                        SideTile(
+                          handler: () {},
+                          icon: Icon(
+                            CupertinoIcons.money_dollar_circle_fill,
+                            color: Colors.white,
+                          ),
+                          title: "Wallet",
                         ),
-                        title: "Wallet",
-                      ),
-                      SideTile(
-                        handler: () {},
-                        icon: Icon(
-                          CupertinoIcons.doc_chart_fill,
-                          color: Colors.white,
+                        SideTile(
+                          handler: () {},
+                          icon: Icon(
+                            CupertinoIcons.doc_chart_fill,
+                            color: Colors.white,
+                          ),
+                          title: "Privacy Policy",
                         ),
-                        title: "Privacy Policy",
-                      ),
-                      SideTile(
-                        handler: () {
-                          context.read<AuthCubit>().signOut();
-                        },
-                        icon: Icon(
-                          Icons.logout,
-                          color: Colors.white,
-                        ),
-                        title: "Logout ",
-                      )
-                    ],
-                  ),
-                )),
-          ),
-          SlideTransition(
-            position: CurvedAnimation(parent: controller, curve: Curves.easeIn)
-                .drive(Tween(
-                    begin: Offset(0.45, 0),
-                    end: Offset(
-                      0,
-                      0,
-                    ))),
-            child: ScaleTransition(
-              scale: CurvedAnimation(parent: controller, curve: Curves.easeIn)
-                  .drive(Tween(begin: .85, end: 1)),
-              child: GestureDetector(
-                onHorizontalDragUpdate: (details) {
-                  if (details.delta.dx > 0) {
-                    if (controller.isCompleted) {
-                      controller.reverse();
+                        SideTile(
+                          handler: () {
+                            context.read<AuthCubit>().signOut();
+                          },
+                          icon: Icon(
+                            Icons.logout,
+                            color: Colors.white,
+                          ),
+                          title: "Logout ",
+                        )
+                      ],
+                    ),
+                  )),
+            ),
+            SlideTransition(
+              position: CurvedAnimation(parent: controller, curve: Curves.easeIn)
+                  .drive(Tween(
+                      begin: Offset(0.45, 0),
+                      end: Offset(
+                        0,
+                        0,
+                      ))),
+              child: ScaleTransition(
+                scale: CurvedAnimation(parent: controller, curve: Curves.easeIn)
+                    .drive(Tween(begin: .85, end: 1)),
+                child: GestureDetector(
+                  onHorizontalDragUpdate: (details) {
+                    if (details.delta.dx > 0) {
+                      if (controller.isCompleted) {
+                        controller.reverse();
+                      }
+                    } else {
+                      if (controller.isDismissed) {
+                        controller.forward();
+                      } else {
+                        if (!controller.isAnimating)
+                          widget.pageController.animateToPage(1,
+                              duration: Duration(milliseconds: 500),
+                              curve: Curves.easeIn);
+                      }
                     }
-                  } else {
+                  },
+                  onTap: () {
                     if (controller.isDismissed) {
                       controller.forward();
-                    } else {
-                      if (!controller.isAnimating)
-                        widget.pageController.animateToPage(1,
-                            duration: Duration(milliseconds: 500),
-                            curve: Curves.easeIn);
                     }
-                  }
-                },
-                onTap: () {
-                  if (controller.isDismissed) {
-                    controller.forward();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 1.8 * kToolbarHeight),
-                  child: Container(
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          if (!showAppBar)
-                            BoxShadow(
-                                color: Colors.black.withOpacity(0.4),
-                                blurRadius: 20,
-                                spreadRadius: 5)
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 1.8 * kToolbarHeight),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          boxShadow: [
+                            if (!showAppBar)
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.4),
+                                  blurRadius: 20,
+                                  spreadRadius: 5)
+                          ],
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white),
+                      child: CustomScrollView(
+                        slivers: [
+                          // if (showAppBar)
+                          //   AppBarWidget(
+                          //     animationController: controller,
+                          //   )
+                          // else
+                          //   SliverPadding(padding: MediaQuery.of(context).padding),
+                          LiveStreamingTitleWidget(),
+                          StreamGridWidget()
                         ],
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.white),
-                    child: CustomScrollView(
-                      slivers: [
-                        // if (showAppBar)
-                        //   AppBarWidget(
-                        //     animationController: controller,
-                        //   )
-                        // else
-                        //   SliverPadding(padding: MediaQuery.of(context).padding),
-                        LiveStreamingTitleWidget(),
-                        StreamGridWidget()
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

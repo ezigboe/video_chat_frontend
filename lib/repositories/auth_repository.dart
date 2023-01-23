@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:video_chat/models/user_model/user_model.dart';
 import 'package:video_chat/utils/meta_strings.dart';
 
+
 class AuthRepository {
   static FirebaseAuth instance = FirebaseAuth.instance;
   Future<User?> signUp(String email, String password) async {
@@ -65,5 +66,5 @@ class AuthRepository {
     await instance.signOut();
   }
 
- 
+
 }

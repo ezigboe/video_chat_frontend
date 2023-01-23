@@ -10,6 +10,7 @@ import 'package:video_chat/models/user_model/user_model.dart';
 import 'package:video_chat/repositories/auth_repository.dart';
 import 'package:video_chat/repositories/user_repository.dart';
 import 'package:video_chat/utils/upload_media.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 part 'auth_state.dart';
 
@@ -21,6 +22,7 @@ class AuthCubit extends Cubit<AuthState> {
   late String authToken;
   FlutterSecureStorage storage = new FlutterSecureStorage();
   late UserRepository _userRepository;
+  late IO.Socket socket;
   initAuth() async {
     emit(AuthLoading());
     timer?.close();
@@ -105,6 +107,8 @@ class AuthCubit extends Cubit<AuthState> {
   signOut() async {
     try {
       emit(AuthLoading());
+      socket.clearListeners();
+      socket.disconnect();
       await _authRepository.logout();
     } catch (e) {
       emit(AuthError(formatMessage(e)));
@@ -117,7 +121,9 @@ class AuthCubit extends Cubit<AuthState> {
     await storage.write(key: "token", value: token);
     log(token);
     _userRepository = UserRepository(authToken);
+
     try {
+      socket = await _userRepository.getSocket();
       UserModel userModel = await _userRepository.getUserDetails();
       log("Here");
       emit(AuthLoggedIn(userData, userModel));

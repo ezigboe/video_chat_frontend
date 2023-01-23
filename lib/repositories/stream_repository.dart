@@ -126,24 +126,5 @@ class StreamRepository {
     }
   }
 
-  Future<IO.Socket> getSocket(StreamModel stream) async {
-    try {
-      authToken = await getToken();
-      var headers = {
-        "Authorization": "Bearer $authToken",
-        "Content-Type": "application/json"
-      };
-      IO.Socket socket = IO.io(
-          MetaStrings.socketBaseUrl,
-          IO.OptionBuilder()
-              .setTransports(['websocket']) // for Flutter or Dart VM
-              .disableAutoConnect() // disable auto-connection
-              .setExtraHeaders(headers) // optional
-              .build());
-      socket.connect();
-      return socket;
-    } catch (e) {
-      rethrow;
-    }
-  }
+  
 }

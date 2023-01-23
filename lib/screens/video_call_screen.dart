@@ -5,9 +5,13 @@ import 'dart:ui';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:video_chat/auth.dart';
+import 'package:video_chat/cubits/cubit/random_video_cubit.dart';
 import 'package:video_chat/screens/home_screen.dart';
 import 'package:video_chat/utils/agora_config.dart';
+import 'package:video_chat/utils/meta_styles.dart';
 
 class VideoCallScreen extends StatefulWidget {
   const VideoCallScreen({super.key});
@@ -21,6 +25,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _localUserJoined = false;
   late RtcEngine _engine;
   bool user = false;
+  String channelName = "";
+  String channelToken = "";
+  bool isMicOn = true;
 
   @override
   void initState() {
@@ -33,7 +40,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Future<void> initAgora() async {
-    log("herrrrrrrrrrrrrrrrrrrrr");
     // retrieve permissions
     await [Permission.microphone, Permission.camera].request();
 
@@ -44,6 +50,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
     ));
 
+    setState(() {});
     _engine.registerEventHandler(
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
@@ -80,149 +87,238 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     await _engine.enableVideo();
     await _engine.startPreview();
     log("here");
-    await _engine.joinChannel(
-      token: token,
-      channelId: "Test",
-      options: ChannelMediaOptions(
-          clientRoleType: ClientRoleType.clientRoleBroadcaster),
-      uid: 0,
-    );
 
     log("here ttttt");
   }
 
+  _joinChannel(String channel, String token) async {
+    // setState(() {
+    //   channelName = channel;
+    //   channelToken = token;
+    // });
+    await _engine.joinChannel(
+      token: channelToken,
+      channelId: channelName,
+      options: ChannelMediaOptions(
+          clientRoleType: ClientRoleType.clientRoleBroadcaster),
+      uid: 0,
+    );
+  }
+
   @override
   void dispose() {
-    _engine.leaveChannel();
-    _engine.stopPreview();
+    endStream();
     _engine.release();
-    log("Channel left");
     super.dispose();
+  }
+
+  endStream() {
+    _engine?.leaveChannel();
+    _engine?.stopPreview();
+
+    log("Channel left");
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Scaffold(
-          // floatingActionButton: FloatingActionButton(onPressed: (){
-          // if(_localUserJoined){
-          //   _engine.leaveChannel();
-          //   setState(() {
-          //     _localUserJoined=false;
-          //   });
-          // }else{
-          //   _engine.joinChannel(token: token, channelId: "Test", uid: 0, options: ChannelMediaOptions(clientRoleType: ClientRoleType.clientRoleBroadcaster));
-          // }
-          // }),
-          body: CustomScrollView(
-        slivers: [
-          // AppBarWidget(),
-          SliverFillRemaining(
-            child: Container(
-              // height: MediaQuery.of(context).size.height-kToolbarHeight,
-              child: Center(
-                child: Stack(
-                  children: [
-                    Center(
-                      child: !user
-                          ? _remoteVideo()
-                          : LocalUserView(engine: _engine),
+          body: BlocConsumer<RandomVideoCubit, RandomVideoState>(
+        listener: (context, state) async {
+          // TODO: implement listener
+          if (state is RandomVideoUserFoundState) {
+            await _joinChannel(
+                state.randomUser.channel!, state.randomUser.token);
+          }
+        },
+        builder: (context, state) {
+          if (state is RandomVideoUserError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(state.error),
+                  Center(
+                      child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: InkWell(
+                      child: Text(
+                        "Search",
+                        style: MetaStyles.labelStyle,
+                      ),
+                      onTap: () {
+                        context.read<RandomVideoCubit>().findUser();
+                      },
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  user = !user;
-                                });
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: Colors.amber),
-                                width: 100,
-                                height: 150,
-                                child: Center(
-                                  child: _localUserJoined
-                                      ? !user
-                                          ? LocalUserView(engine: _engine)
-                                          : _remoteVideo()
-                                      : const CircularProgressIndicator(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CircleAvatar(
-                                          backgroundColor: Colors.white,
-                                          child: Icon(
-                                            CupertinoIcons.camera_rotate,
-                                            color: Colors.black,
-                                          )),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CircleAvatar(
-                                          backgroundColor: Colors.white,
-                                          child: Icon(
-                                            CupertinoIcons.mic_off,
-                                            color: Colors.black,
-                                          )),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: CircleAvatar(
-                                          backgroundColor: Colors.red,
-                                          child: Icon(
-                                            CupertinoIcons.phone_down_fill,
-                                            color: Colors.white,
-                                          )),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+                  ))
+                ],
               ),
-            ),
-          ),
-        ],
+            );
+          }
+          if (state is RandomVideoUserSearchingState) {
+            return Center(
+              child: Loader(),
+            );
+          }
+          if (state is RandomVideoUserIdleState) {
+            return Center(
+                child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                child: Text(
+                  "Search",
+                  style: MetaStyles.labelStyle,
+                ),
+                onTap: () {
+                  context.read<RandomVideoCubit>().findUser();
+                },
+              ),
+            ));
+          }
+          if (state is RandomVideoUserFoundState) {
+            if (_engine == null) {
+              return Center(
+                child: Loader(),
+              );
+            }
+            return CustomScrollView(
+              slivers: [
+                // AppBarWidget(),
+                SliverFillRemaining(
+                  child: Container(
+                    // height: MediaQuery.of(context).size.height-kToolbarHeight,
+                    child: Center(
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: !user
+                                ? _remoteVideo(state.randomUser.channel!)
+                                : LocalUserView(engine: _engine),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        user = !user;
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: Colors.amber),
+                                      width: 100,
+                                      height: 150,
+                                      child: Center(
+                                        child: _localUserJoined
+                                            ? !user
+                                                ? LocalUserView(engine: _engine)
+                                                : _remoteVideo(
+                                                    state.randomUser.channel!)
+                                            : const CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 10, sigmaY: 10),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: CircleAvatar(
+                                                backgroundColor: Colors.white,
+                                                child: Icon(
+                                                  CupertinoIcons.camera_rotate,
+                                                  color: Colors.black,
+                                                )),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  isMicOn = !isMicOn;
+                                                });
+                                                _engine
+                                                    .muteAllRemoteAudioStreams(
+                                                        isMicOn);
+                                              },
+                                              child: CircleAvatar(
+                                                  backgroundColor: Colors.white,
+                                                  child: Icon(
+                                                    isMicOn
+                                                        ? CupertinoIcons.mic
+                                                        : CupertinoIcons
+                                                            .mic_off,
+                                                    color: Colors.black,
+                                                  )),
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: InkWell(
+                                              onTap: () {
+                                                endStream();
+                                                context
+                                                    .read<RandomVideoCubit>()
+                                                    .endCall();
+                                              },
+                                              child: CircleAvatar(
+                                                  backgroundColor: Colors.red,
+                                                  child: Icon(
+                                                    CupertinoIcons
+                                                        .phone_down_fill,
+                                                    color: Colors.white,
+                                                  )),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          return SizedBox.shrink();
+        },
       )),
     );
   }
 
-  Widget _remoteVideo() {
+  Widget _remoteVideo(String channelName) {
     if (_remoteUid != null) {
       log("Heyeyey");
       return AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: _engine,
           canvas: VideoCanvas(uid: _remoteUid),
-          connection: const RtcConnection(channelId: "Test"),
+          connection: RtcConnection(channelId: channelName),
         ),
       );
     } else {
