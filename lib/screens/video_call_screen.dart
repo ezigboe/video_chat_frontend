@@ -97,8 +97,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     //   channelToken = token;
     // });
     await _engine.joinChannel(
-      token: channelToken,
-      channelId: channelName,
+      token: token,
+      channelId: channel,
       options: ChannelMediaOptions(
           clientRoleType: ClientRoleType.clientRoleBroadcaster),
       uid: 0,
