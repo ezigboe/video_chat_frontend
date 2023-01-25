@@ -26,12 +26,12 @@ class RandomVideoCubit extends Cubit<RandomVideoState> {
     }
   }
 
-  endCall()async{
-    try{
-      bool? value=await _randomVideoRepository.deleteCall();
+  endCall() async {
+    try {
+      bool? value = await _randomVideoRepository.deleteCall();
       emit(RandomVideoUserIdleState());
-    }catch(e){
-      RandomVideoUserError(e.toString());
+    } catch (e) {
+      emit(RandomVideoUserError(e.toString()));
     }
   }
 }
