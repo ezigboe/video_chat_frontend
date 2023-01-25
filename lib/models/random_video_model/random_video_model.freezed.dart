@@ -22,8 +22,8 @@ RandomVideoModel _$RandomVideoModelFromJson(Map<String, dynamic> json) {
 mixin _$RandomVideoModel {
   String? get channel => throw _privateConstructorUsedError;
   String get key => throw _privateConstructorUsedError;
-  bool get repeat => throw _privateConstructorUsedError;
-  bool get skip => throw _privateConstructorUsedError;
+  bool? get repeat => throw _privateConstructorUsedError;
+  bool? get skip => throw _privateConstructorUsedError;
   String get token => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -39,7 +39,7 @@ abstract class $RandomVideoModelCopyWith<$Res> {
       _$RandomVideoModelCopyWithImpl<$Res, RandomVideoModel>;
   @useResult
   $Res call(
-      {String? channel, String key, bool repeat, bool skip, String token});
+      {String? channel, String key, bool? repeat, bool? skip, String token});
 }
 
 /// @nodoc
@@ -57,8 +57,8 @@ class _$RandomVideoModelCopyWithImpl<$Res, $Val extends RandomVideoModel>
   $Res call({
     Object? channel = freezed,
     Object? key = null,
-    Object? repeat = null,
-    Object? skip = null,
+    Object? repeat = freezed,
+    Object? skip = freezed,
     Object? token = null,
   }) {
     return _then(_value.copyWith(
@@ -70,14 +70,14 @@ class _$RandomVideoModelCopyWithImpl<$Res, $Val extends RandomVideoModel>
           ? _value.key
           : key // ignore: cast_nullable_to_non_nullable
               as String,
-      repeat: null == repeat
+      repeat: freezed == repeat
           ? _value.repeat
           : repeat // ignore: cast_nullable_to_non_nullable
-              as bool,
-      skip: null == skip
+              as bool?,
+      skip: freezed == skip
           ? _value.skip
           : skip // ignore: cast_nullable_to_non_nullable
-              as bool,
+              as bool?,
       token: null == token
           ? _value.token
           : token // ignore: cast_nullable_to_non_nullable
@@ -95,7 +95,7 @@ abstract class _$$_RandomVideoModelCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String? channel, String key, bool repeat, bool skip, String token});
+      {String? channel, String key, bool? repeat, bool? skip, String token});
 }
 
 /// @nodoc
@@ -111,8 +111,8 @@ class __$$_RandomVideoModelCopyWithImpl<$Res>
   $Res call({
     Object? channel = freezed,
     Object? key = null,
-    Object? repeat = null,
-    Object? skip = null,
+    Object? repeat = freezed,
+    Object? skip = freezed,
     Object? token = null,
   }) {
     return _then(_$_RandomVideoModel(
@@ -124,14 +124,14 @@ class __$$_RandomVideoModelCopyWithImpl<$Res>
           ? _value.key
           : key // ignore: cast_nullable_to_non_nullable
               as String,
-      repeat: null == repeat
+      repeat: freezed == repeat
           ? _value.repeat
           : repeat // ignore: cast_nullable_to_non_nullable
-              as bool,
-      skip: null == skip
+              as bool?,
+      skip: freezed == skip
           ? _value.skip
           : skip // ignore: cast_nullable_to_non_nullable
-              as bool,
+              as bool?,
       token: null == token
           ? _value.token
           : token // ignore: cast_nullable_to_non_nullable
@@ -160,9 +160,9 @@ class _$_RandomVideoModel
   @override
   final String key;
   @override
-  final bool repeat;
+  final bool? repeat;
   @override
-  final bool skip;
+  final bool? skip;
   @override
   final String token;
 
@@ -218,8 +218,8 @@ abstract class _RandomVideoModel implements RandomVideoModel {
   const factory _RandomVideoModel(
       {required final String? channel,
       required final String key,
-      required final bool repeat,
-      required final bool skip,
+      required final bool? repeat,
+      required final bool? skip,
       required final String token}) = _$_RandomVideoModel;
 
   factory _RandomVideoModel.fromJson(Map<String, dynamic> json) =
@@ -230,9 +230,9 @@ abstract class _RandomVideoModel implements RandomVideoModel {
   @override
   String get key;
   @override
-  bool get repeat;
+  bool? get repeat;
   @override
-  bool get skip;
+  bool? get skip;
   @override
   String get token;
   @override

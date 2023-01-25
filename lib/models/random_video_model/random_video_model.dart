@@ -13,8 +13,8 @@ class RandomVideoModel with _$RandomVideoModel {
   const factory RandomVideoModel({
     required String? channel,
     required String key,
-    required bool repeat,
-    required bool skip,
+    required bool? repeat,
+    required bool? skip,
     required String token,
   }) = _RandomVideoModel;
 

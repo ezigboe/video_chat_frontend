@@ -10,8 +10,8 @@ _$_RandomVideoModel _$$_RandomVideoModelFromJson(Map<String, dynamic> json) =>
     _$_RandomVideoModel(
       channel: json['channel'] as String?,
       key: json['key'] as String,
-      repeat: json['repeat'] as bool,
-      skip: json['skip'] as bool,
+      repeat: json['repeat'] as bool?,
+      skip: json['skip'] as bool?,
       token: json['token'] as String,
     );
 
