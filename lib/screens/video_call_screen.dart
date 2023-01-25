@@ -33,7 +33,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   void initState() {
     super.initState();
     try {
-      // initAgora();
+      initAgora();
     } catch (e) {
       log(e.toString());
     }
@@ -107,12 +107,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   @override
   void dispose() {
-    endStream();
-    _engine.release();
+    if (_engine != null) {
+      endStream();
+      _engine.release();
+    }
     super.dispose();
   }
 
   endStream() {
+    context.read<RandomVideoCubit>().endCall();
     _engine?.leaveChannel();
     _engine?.stopPreview();
 
@@ -127,6 +130,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         listener: (context, state) async {
           // TODO: implement listener
           if (state is RandomVideoUserFoundState) {
+            log("channel Name ${state.randomUser.channel!}");
             await _joinChannel(
                 state.randomUser.channel!, state.randomUser.token);
           }
@@ -276,9 +280,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                                             child: InkWell(
                                               onTap: () {
                                                 endStream();
-                                                context
-                                                    .read<RandomVideoCubit>()
-                                                    .endCall();
                                               },
                                               child: CircleAvatar(
                                                   backgroundColor: Colors.red,
