@@ -31,6 +31,8 @@ class ChatsCubit extends Cubit<ChatsState> {
     }
   }
 
+createChat(){}
+
   getSpecificChats(String threadId) async {
     try {
       emit(ChatsIndividualLoading((state as ChatsLoaded).chats));

@@ -400,6 +400,7 @@ class StreamChatField extends StatelessWidget {
                       padding: const EdgeInsets.all(8.0),
                       child: InkWell(
                         onTap: () {
+                          log("heree");
                           AuthLoggedIn state =
                               (context.read<AuthCubit>().state as AuthLoggedIn);
                           context.read<StreamCubit>().sendMessage(

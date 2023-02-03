@@ -65,8 +65,10 @@ class _AuthState extends State<Auth> {
         },
         builder: (context, state) {
           if (state is AuthLoading) return Loader();
-          if (state is AuthLoggedIn || state is AuthUserDetailsPending)
+          if (state is AuthLoggedIn || state is AuthUserDetailsPending) {
+
             return HomeScreen(title: "Home");
+          }
           return AuthScreens();
         },
       ),
@@ -85,6 +87,7 @@ class Loader extends StatelessWidget {
       height: 100,
       width: 100,
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: Center(
           child: CupertinoActivityIndicator(),
         ),

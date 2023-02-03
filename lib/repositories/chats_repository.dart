@@ -65,4 +65,31 @@ class ChatsRepository {
       rethrow;
     }
   }
+
+  createChat(var params) async {
+    try {
+      authToken = await getToken();
+      var headers = {
+        "Authorization": "Bearer $authToken",
+        "Content-Type": "application/json"
+      };
+      log(headers.toString());
+      http.Response response = await http.post(
+        Uri.parse(MetaStrings.messagesUrl),
+        body: jsonEncode(params),
+        headers: headers,
+      );
+      log(response.body);
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)["messages"]
+            .map<MessagesModel>((e) => MessagesModel.fromJson(e))
+            .toList();
+      } else {
+        throw Exception(jsonDecode(response.body)["errors"][0]["message"] +
+            response.statusCode);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

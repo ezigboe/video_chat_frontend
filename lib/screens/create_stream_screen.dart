@@ -56,18 +56,19 @@ class _CreateStreamScreenState extends State<CreateStreamScreen> {
                     )));
               }
               if (state is CreateStreamSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    elevation: 0,
-                    // margin: EdgeInsets.only(top: kToolbarHeight),
-                    // padding: EdgeInsets.only(
-                    //    top: kToolbarHeight+5),
-                    backgroundColor: Colors.transparent,
-                    behavior: SnackBarBehavior.fixed,
-                    dismissDirection: DismissDirection.horizontal,
-                    content: MessageWidget(
-                      message: state.message,
-                      isError: false,
-                    )));
+                if (mounted)
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      elevation: 0,
+                      // margin: EdgeInsets.only(top: kToolbarHeight),
+                      // padding: EdgeInsets.only(
+                      //    top: kToolbarHeight+5),
+                      backgroundColor: Colors.transparent,
+                      behavior: SnackBarBehavior.fixed,
+                      dismissDirection: DismissDirection.horizontal,
+                      content: MessageWidget(
+                        message: state.message,
+                        isError: false,
+                      )));
                 Navigator.pop(context);
               }
             }),

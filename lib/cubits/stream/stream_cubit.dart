@@ -60,6 +60,7 @@ class StreamCubit extends Cubit<StreamState> {
   void initiateChatThread() async {
     try {
       socket = _authCubit.socket;
+      log("here");
       registerHandlers();
     } catch (e) {
       emit(StreamError(e.toString()));
@@ -67,11 +68,13 @@ class StreamCubit extends Cubit<StreamState> {
   }
 
   void registerHandlers() {
+    socket.emit('join_stream', streamModel.id);
+    messageStreamController = StreamController<StreamChatModel>.broadcast();
     socket.onConnect((_) {
-      socket.emit('join_stream', streamModel.id);
-      messageStreamController = StreamController<StreamChatModel>.broadcast();
+      log("heyyy");
     });
     socket.on('msg_data', (data) {
+      log("received message");
       streamMessages.add(StreamChatModel.fromJson(data[0]));
       messageStreamController.sink.add(StreamChatModel.fromJson(data[0]));
     });
@@ -81,6 +84,7 @@ class StreamCubit extends Cubit<StreamState> {
   void sendMessage(
       String message, String from, String fromName, String fromImageUrl) {
     try {
+      log("sent");
       socket.emit('stream_chat',
           [message, streamModel.id, from, fromName, fromImageUrl]);
     } catch (e) {

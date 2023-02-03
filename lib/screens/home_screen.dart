@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:video_chat/cubits/cubit/random_video_cubit.dart';
 import 'package:video_chat/cubits/stream_list/stream_list_cubit.dart';
 import 'package:video_chat/screens/auth_screens/user_details_update.dart';
 import 'package:video_chat/screens/chat_screen.dart';
@@ -13,6 +14,7 @@ import 'package:video_chat/screens/live_stream_screen.dart';
 import 'package:video_chat/screens/live_stream_widget.dart';
 import 'package:video_chat/screens/profile_screen.dart';
 import 'package:video_chat/screens/video_call_screen.dart';
+import 'package:video_chat/screens/wallet.dart';
 import 'package:video_chat/utils/meta_assets.dart';
 import 'package:video_chat/utils/meta_colors.dart';
 
@@ -51,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<StreamListCubit>().getData();
+      context.read<RandomVideoCubit>().init();
     });
   }
 
@@ -70,6 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   setState(() {
                     _currentIndex = value;
                   });
+                  if (context.read<RandomVideoCubit>().state
+                      is RandomVideoUserFoundState) {
+                    context.read<RandomVideoCubit>().endVideoCall();
+                  }
                   pageController.jumpToPage(value);
                 }),
                 items: [
@@ -149,13 +156,11 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-                    child: Icon(CupertinoIcons.add),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CreateStreamScreen()));
-                    }),
+          child: Icon(CupertinoIcons.add),
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CreateStreamScreen()));
+          }),
       body: Container(
         child: Stack(
           // fit: StackFit.expand,
@@ -167,7 +172,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       end: BoxDecoration(color: Colors.white))
                   .animate(controller),
               child: Scaffold(
-                  
                   appBar: AppBar(
                     backgroundColor: Colors.transparent,
                     leading: Padding(
@@ -217,7 +221,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           title: "Profile",
                         ),
                         SideTile(
-                          handler: () {},
+                          handler: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Wallet()));
+                          },
                           icon: Icon(
                             CupertinoIcons.money_dollar_circle_fill,
                             color: Colors.white,
@@ -247,13 +256,14 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   )),
             ),
             SlideTransition(
-              position: CurvedAnimation(parent: controller, curve: Curves.easeIn)
-                  .drive(Tween(
-                      begin: Offset(0.45, 0),
-                      end: Offset(
-                        0,
-                        0,
-                      ))),
+              position:
+                  CurvedAnimation(parent: controller, curve: Curves.easeIn)
+                      .drive(Tween(
+                          begin: Offset(0.45, 0),
+                          end: Offset(
+                            0,
+                            0,
+                          ))),
               child: ScaleTransition(
                 scale: CurvedAnimation(parent: controller, curve: Curves.easeIn)
                     .drive(Tween(begin: .85, end: 1)),

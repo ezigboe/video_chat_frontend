@@ -52,12 +52,14 @@ class MyApp extends StatelessWidget {
                     context.read<AuthCubit>())),
             BlocProvider(
                 create: (context) => ChatsCubit(
-                    context.read<ChatsRepository>(), context.read<AuthCubit>())..getAllChats())
+                    context.read<ChatsRepository>(), context.read<AuthCubit>())
+                  ..getAllChats())
           ],
           child: BlocProvider(
             create: (context) => RandomVideoCubit(
                 context.read<RandomVideoRepository>(),
-                context.read<ChatsCubit>()),
+                context.read<ChatsCubit>(),
+                context.read<AuthCubit>()),
             child: MaterialApp(
               title: 'Flutter Demo',
               theme: ThemeData(

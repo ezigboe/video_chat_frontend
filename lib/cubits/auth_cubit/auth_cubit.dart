@@ -124,8 +124,9 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       socket = await _userRepository.getSocket();
+      log("here");
       UserModel userModel = await _userRepository.getUserDetails();
-      log("Here");
+      log("He0re ${socket.connected}");
       emit(AuthLoggedIn(userData, userModel));
     } catch (e) {
       if (e.toString().contains("404"))

@@ -5,12 +5,14 @@ import 'dart:ui';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:video_chat/auth.dart';
 import 'package:video_chat/cubits/cubit/random_video_cubit.dart';
 import 'package:video_chat/screens/home_screen.dart';
 import 'package:video_chat/utils/agora_config.dart';
+import 'package:video_chat/utils/meta_colors.dart';
 import 'package:video_chat/utils/meta_styles.dart';
 
 class VideoCallScreen extends StatefulWidget {
@@ -33,7 +35,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   void initState() {
     super.initState();
     try {
-      initAgora();
+      SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+        context.read<RandomVideoCubit>().findUser();
+        initAgora();
+      });
     } catch (e) {
       log(e.toString());
     }
@@ -46,6 +51,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     //create the engine
     _engine = createAgoraRtcEngine();
     await _engine.initialize(const RtcEngineContext(
+       logConfig: LogConfig(
+      level:LogLevel.logLevelNone
+    ),
       appId: appId,
       channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
     ));
@@ -115,7 +123,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   endStream() {
-    context.read<RandomVideoCubit>().endCall();
     _engine?.leaveChannel();
     _engine?.stopPreview();
 
@@ -151,7 +158,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                         style: MetaStyles.labelStyle,
                       ),
                       onTap: () {
-                        context.read<RandomVideoCubit>().findUser();
+                        context.read<RandomVideoCubit>().init();
                       },
                     ),
                   ))
@@ -160,9 +167,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             );
           }
           if (state is RandomVideoUserSearchingState) {
-            return Center(
-              child: Loader(),
-            );
+            return SearchingWidget();
           }
           if (state is RandomVideoUserIdleState) {
             return Center(
@@ -174,7 +179,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   style: MetaStyles.labelStyle,
                 ),
                 onTap: () {
-                  context.read<RandomVideoCubit>().findUser();
+                  context.read<RandomVideoCubit>().init();
                 },
               ),
             ));
@@ -328,6 +333,84 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         textAlign: TextAlign.center,
       );
     }
+  }
+}
+
+class SearchingWidget extends StatefulWidget {
+  const SearchingWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<SearchingWidget> createState() => _SearchingWidgetState();
+}
+
+class _SearchingWidgetState extends State<SearchingWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  @override
+  void initState() {
+    _controller = AnimationController(
+        lowerBound: 0,
+        upperBound: 1,
+        vsync: this,
+        duration: Duration(milliseconds: 1000))
+      ..forward()
+      ..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+        builder: (context, widget) {
+          return Container(
+            decoration: BoxDecoration(
+                // color: Colors.purpleAccent,
+                boxShadow: [
+                  BoxShadow(
+                      color: MetaColors.primaryColor.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 5,
+                      offset: Offset(5, 5))
+                ],
+                gradient: RadialGradient(
+                    tileMode: TileMode.repeated,
+                    // startAngle: .2,
+                    // endAngle: math.pi*1,
+                    radius: _controller.value,
+                    focalRadius: 1 - _controller.value,
+                    colors: [
+                      // Colors.greenAccent,
+                      // Colors.redAccent,
+                      // Colors.amberAccent,
+                      // Colors.purpleAccent,
+                      Colors.white,
+                      Colors.white10
+                      // Colors.white,
+                    ])),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 10),
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Loader(),
+                    Text(
+                      "Searching for a match",
+                      style: MetaStyles.labelStyle,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 }
 
